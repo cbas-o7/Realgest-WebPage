@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalizar Gestos - RealGest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#55c4bd',
+                        secondary: '#18416d'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-09-22%20at%2019.41.28-oE6eFram0EL91WXRTEG82W4fL1HalH.jpeg" alt="RealGest Logo" class="h-12 w-12">
+                    <div>
+                        <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
+                        <p class="text-sm text-gray-600">Personalizar Gestos</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-secondary font-medium transition-colors">
+                        ← Volver al Dashboard
+                    </a>
+                    <button id="logoutBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Left Column: Camera and Form -->
+            <div>
+                <!-- Title Section -->
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-secondary mb-2">Crear Nuevo Gesto</h2>
+                    <p class="text-gray-600">Registra un gesto personalizado para tu vocabulario</p>
+                </div>
+
+                <!-- Camera Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Vista de Cámara</h3>
+                    <div class="relative bg-gray-900 rounded-lg overflow-hidden mb-4" style="aspect-ratio: 4/3;">
+                        <video id="videoElement" autoplay playsinline class="w-full h-full object-cover"></video>
+                        
+                        <!-- Camera Status Indicator -->
+                        <div id="cameraStatus" class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                            <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                            Cámara Inactiva
+                        </div>
+
+                        <!-- Recording Indicator -->
+                        <div id="recordingIndicator" class="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium hidden flex items-center gap-2">
+                            <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                            Grabando
+                        </div>
+
+                        <!-- No Camera Message -->
+                        <div id="noCameraMessage" class="absolute inset-0 flex items-center justify-center text-white text-center p-8">
+                            <div>
+                                <div class="text-6xl mb-4">🎥</div>
+                                <p class="text-xl font-semibold mb-2">Cámara no iniciada</p>
+                                <p class="text-gray-300">Presiona "Iniciar Cámara" para comenzar</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Camera Controls -->
+                    <div class="flex gap-3 justify-center">
+                        <button id="startCameraBtn" class="bg-primary hover:bg-opacity-90 text-white px-5 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                            <span class="text-lg">▶</span>
+                            Iniciar Cámara
+                        </button>
+                        <button id="stopCameraBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
+                            <span class="text-lg">⏹</span>
+                            Detener
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gesture Form -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-secondary mb-4">Información del Gesto</h3>
+                    <form id="gestureForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Gesto *</label>
+                            <input 
+                                type="text" 
+                                id="gestureName" 
+                                required 
+                                placeholder="Ej: Hola, Gracias, Ayuda..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                            >
+                            <p class="text-xs text-gray-500 mt-1">Ingresa el significado del gesto que deseas registrar</p>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button 
+                                type="button" 
+                                id="captureGestureBtn" 
+                                class="flex-1 bg-secondary hover:bg-opacity-90 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                disabled
+                            >
+                                📸 Capturar Gesto
+                            </button>
+                            <button 
+                                type="submit" 
+                                id="saveGestureBtn"
+                                class="flex-1 bg-primary hover:bg-opacity-90 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                disabled
+                            >
+                                💾 Guardar Gesto
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Capture Status -->
+                    <div id="captureStatus" class="mt-4 p-3 rounded-lg hidden">
+                        <p class="text-sm font-medium"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Saved Gestures List -->
+            <div>
+                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-secondary">Gestos Guardados</h3>
+                        <span id="gestureCount" class="bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold">0</span>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <input 
+                            type="text" 
+                            id="searchGestures" 
+                            placeholder="Buscar gestos..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm"
+                        >
+                    </div>
+
+                    <!-- Gestures List -->
+                    <div id="gesturesList" class="space-y-3 max-h-[600px] overflow-y-auto">
+                        <div class="text-center py-12 text-gray-400">
+                            <div class="text-5xl mb-3">✏️</div>
+                            <p class="font-medium">No hay gestos guardados</p>
+                            <p class="text-sm mt-1">Crea tu primer gesto personalizado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/gestures.js"></script>
+</body>
+</html>
