@@ -18,6 +18,22 @@ self.addEventListener("install", (event) => {
   }
 
   event.waitUntil(cacheUrls());
+
+  // Activar service worker inmediatamente
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+    })
+  );
+
+  // Tomar control inmediato de las páginas abiertas
+  self.clients.claim();
+
+  console.log("[Service Worker] Activado y limpiando caches antiguas...");
 });
 
 // Interceptar peticiones
@@ -26,9 +42,6 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((response) => {
         //console.log("[Service Worker] Sirviendo desde caché:", response);
         return response || fetch(event.request);
-      
- 
-      
     }) 
   );
 });
