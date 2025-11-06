@@ -13,8 +13,7 @@ const APP_SHELL_HOME = [
 // Recursos para el Dashboard
 const APP_SHELL_DASHBOARD = [
   "./html/dashboard.html",
-  //"../js/script.js",
-  //"../static/realgest.png", // logo también se usa aquí
+  "./js/dashboard.js",
 ];
 
 // Exportar para que el service worker lo importe

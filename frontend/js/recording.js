@@ -1,11 +1,11 @@
+import { sendToBackend } from "../api/gestures.service.js";
 
-
+let latestLandmarks = null;
 let videoStream = null;
 let sessionStartTime = null;
 let sessionInterval = null;
 let gesturesDetected = 0;
 let wordsTranslated = 0;
-
 
 // DOM Elements
 const videoElement = document.getElementById("videoElement");
@@ -21,6 +21,114 @@ const gesturesCount = document.getElementById("gesturesCount");
 const wordsCount = document.getElementById("wordsCount");
 const sessionTime = document.getElementById("sessionTime");
 
+// ===================== MEDIAPIPE HOLISTIC =====================
+const canvasElement = document.getElementById("outputCanvas");
+const canvasCtx = canvasElement.getContext("2d");
+
+const holistic = new Holistic({
+  locateFile: (file) =>
+    `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+});
+
+holistic.setOptions({
+  modelComplexity: 1,
+  smoothLandmarks: true,
+  refineFaceLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5,
+});
+
+holistic.onResults(onResults);
+
+function onResults(results) {
+  //console.log(results); // para ver si hay landmarks
+  // Ajusta tamaño del canvas al del video
+  if (videoElement.videoWidth && videoElement.videoHeight) {
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+  }
+
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  canvasCtx.drawImage(
+    results.image,
+    0,
+    0,
+    canvasElement.width,
+    canvasElement.height
+  );
+
+  // Dibuja los landmarks
+  if (results.faceLandmarks) {
+    drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {
+      color: "#C0C0C070",
+      lineWidth: 1,
+    });
+    /* drawLandmarks(canvasCtx, results.faceLandmarks, {
+      color: "#FF0000",
+      lineWidth: 1,
+    }); */
+  }
+  if (results.poseLandmarks) {
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+      color: "#00FF00",
+      lineWidth: 4,
+    });
+    drawLandmarks(canvasCtx, results.poseLandmarks, {
+      color: "#FF0000",
+      lineWidth: 2,
+    });
+  }
+  if (results.leftHandLandmarks) {
+    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {
+      color: "#00FFFF",
+      lineWidth: 2,
+    });
+    drawLandmarks(canvasCtx, results.leftHandLandmarks, {
+      color: "#FFFFFF",
+      lineWidth: 1,
+    });
+  }
+  if (results.rightHandLandmarks) {
+    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {
+      color: "#FF00FF",
+      lineWidth: 2,
+    });
+    drawLandmarks(canvasCtx, results.rightHandLandmarks, {
+      color: "#FFFFFF",
+      lineWidth: 1,
+    });
+  }
+  canvasCtx.restore();
+
+  // Guardar datos numéricos
+  latestLandmarks = {
+    timestamp: Date.now(),
+    pose: results.poseLandmarks || [],
+    face: results.faceLandmarks || [],
+    leftHand: results.leftHandLandmarks || [],
+    rightHand: results.rightHandLandmarks || [],
+  };
+}
+
+// === Enviar datos al backend cada 2 segundos ===
+setInterval(() => {
+  if (latestLandmarks) {
+    sendToBackend(latestLandmarks);
+  }
+}, 2000);
+
+function startHolistic(videoEl) {
+  const holisticCamera = new Camera(videoEl, {
+    onFrame: async () => {
+      await holistic.send({ image: videoEl });
+    },
+    width: 1280,
+    height: 720,
+  });
+  holisticCamera.start();
+}
+
 // Start Camera
 startCameraBtn.addEventListener("click", async () => {
   try {
@@ -30,6 +138,7 @@ startCameraBtn.addEventListener("click", async () => {
     });
     videoElement.srcObject = videoStream;
     noCameraMessage.classList.add("hidden");
+    //canvasElement.classList.remove("hidden"); // Mostrar el canvas al iniciar
 
     // Update UI
     startCameraBtn.classList.add("hidden");
@@ -39,9 +148,14 @@ startCameraBtn.addEventListener("click", async () => {
     cameraStatus.innerHTML =
       '<span class="w-2 h-2 bg-white rounded-full animate-pulse"></span> Cámara Activa';
 
+    videoElement.onloadedmetadata = () => {
+      console.log("✅ Cámara lista, iniciando Mediapipe...");
+      startHolistic(videoElement); // 👈 aquí se activa Mediapipe
+    };
+
     // Start session timer
-    sessionStartTime = Date.now();
-    sessionInterval = setInterval(updateSessionTime, 1000);
+    //sessionStartTime = Date.now();
+    //sessionInterval = setInterval(updateSessionTime, 1000);
 
     // Simulate gesture detection (replace with actual AI model)
     //simulateGestureDetection();
@@ -58,7 +172,12 @@ stopCameraBtn.addEventListener("click", () => {
     videoElement.srcObject = null;
     videoStream = null;
 
+    // Limpiar y ocultar el canvas
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    //canvasElement.classList.add("hidden");
+
     // Update UI
+    //canvasElement.classList.add("hidden");
     startCameraBtn.classList.remove("hidden");
     stopCameraBtn.classList.add("hidden");
     cameraStatus.classList.remove("bg-green-500");
@@ -74,7 +193,6 @@ stopCameraBtn.addEventListener("click", () => {
     }
   }
 });
-
 
 // Update Session Time
 function updateSessionTime() {
