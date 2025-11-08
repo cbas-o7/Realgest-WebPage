@@ -1,4 +1,5 @@
 import { sendToBackend } from "../api/gestures.service.js";
+import HolisticManager from "./HolisticManager.js";
 
 let latestLandmarks = null;
 let videoStream = null;
@@ -6,6 +7,7 @@ let sessionStartTime = null;
 let sessionInterval = null;
 let gesturesDetected = 0;
 let wordsTranslated = 0;
+let detectedWords = []; // Para guardar las palabras
 
 // DOM Elements
 const videoElement = document.getElementById("videoElement");
@@ -23,110 +25,33 @@ const sessionTime = document.getElementById("sessionTime");
 
 // ===================== MEDIAPIPE HOLISTIC =====================
 const canvasElement = document.getElementById("outputCanvas");
-const canvasCtx = canvasElement.getContext("2d");
 
-const holistic = new Holistic({
-  locateFile: (file) =>
-    `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+// Crear el manager y registrar callback para recibir landmarks numéricos
+const holisticManager = new HolisticManager({
+  videoElement: videoElement,
+  canvasElement: canvasElement,
+  onResults: (landmarks) => {
+    // actualizar variable compartida que usa el resto del archivo
+    latestLandmarks = landmarks;
+  },
 });
-
-holistic.setOptions({
-  modelComplexity: 1,
-  smoothLandmarks: true,
-  refineFaceLandmarks: true,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5,
-});
-
-holistic.onResults(onResults);
-
-function onResults(results) {
-  //console.log(results); // para ver si hay landmarks
-  // Ajusta tamaño del canvas al del video
-  if (videoElement.videoWidth && videoElement.videoHeight) {
-    canvasElement.width = videoElement.videoWidth;
-    canvasElement.height = videoElement.videoHeight;
-  }
-
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  canvasCtx.drawImage(
-    results.image,
-    0,
-    0,
-    canvasElement.width,
-    canvasElement.height
-  );
-
-  // Dibuja los landmarks
-  if (results.faceLandmarks) {
-    drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {
-      color: "#C0C0C070",
-      lineWidth: 1,
-    });
-    /* drawLandmarks(canvasCtx, results.faceLandmarks, {
-      color: "#FF0000",
-      lineWidth: 1,
-    }); */
-  }
-  if (results.poseLandmarks) {
-    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
-      color: "#00FF00",
-      lineWidth: 4,
-    });
-    drawLandmarks(canvasCtx, results.poseLandmarks, {
-      color: "#FF0000",
-      lineWidth: 2,
-    });
-  }
-  if (results.leftHandLandmarks) {
-    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {
-      color: "#00FFFF",
-      lineWidth: 2,
-    });
-    drawLandmarks(canvasCtx, results.leftHandLandmarks, {
-      color: "#FFFFFF",
-      lineWidth: 1,
-    });
-  }
-  if (results.rightHandLandmarks) {
-    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {
-      color: "#FF00FF",
-      lineWidth: 2,
-    });
-    drawLandmarks(canvasCtx, results.rightHandLandmarks, {
-      color: "#FFFFFF",
-      lineWidth: 1,
-    });
-  }
-  canvasCtx.restore();
-
-  // Guardar datos numéricos
-  latestLandmarks = {
-    timestamp: Date.now(),
-    pose: results.poseLandmarks || [],
-    face: results.faceLandmarks || [],
-    leftHand: results.leftHandLandmarks || [],
-    rightHand: results.rightHandLandmarks || [],
-  };
-}
 
 // === Enviar datos al backend cada 2 segundos ===
-setInterval(() => {
-  if (latestLandmarks) {
-    sendToBackend(latestLandmarks);
+setInterval(async() => {
+  if (latestLandmarks && videoStream) {
+    const result = await sendToBackend(latestLandmarks);
+    
+    // --- NUEVO: Procesar la predicción ---
+    if (result && result.prediction) {
+      addTranslation(result.prediction);
+    }
+    // ------------------------------------
   }
-}, 2000);
+}, 100);
 
-function startHolistic(videoEl) {
-  const holisticCamera = new Camera(videoEl, {
-    onFrame: async () => {
-      await holistic.send({ image: videoEl });
-    },
-    width: 1280,
-    height: 720,
-  });
-  holisticCamera.start();
+// Reemplazar startHolistic por llamada al manager.start()
+function startHolistic() {
+  return holisticManager.start();
 }
 
 // Start Camera
@@ -150,12 +75,12 @@ startCameraBtn.addEventListener("click", async () => {
 
     videoElement.onloadedmetadata = () => {
       console.log("✅ Cámara lista, iniciando Mediapipe...");
-      startHolistic(videoElement); // 👈 aquí se activa Mediapipe
+      startHolistic(); // 👈 aquí se activa Mediapipe
     };
 
     // Start session timer
-    //sessionStartTime = Date.now();
-    //sessionInterval = setInterval(updateSessionTime, 1000);
+    sessionStartTime = Date.now();
+    sessionInterval = setInterval(updateSessionTime, 1000);
 
     // Simulate gesture detection (replace with actual AI model)
     //simulateGestureDetection();
@@ -172,12 +97,9 @@ stopCameraBtn.addEventListener("click", () => {
     videoElement.srcObject = null;
     videoStream = null;
 
-    // Limpiar y ocultar el canvas
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    //canvasElement.classList.add("hidden");
+    // detener el manager y limpiar canvas
+    holisticManager.stop();
 
-    // Update UI
-    //canvasElement.classList.add("hidden");
     startCameraBtn.classList.remove("hidden");
     stopCameraBtn.classList.add("hidden");
     cameraStatus.classList.remove("bg-green-500");
@@ -243,11 +165,22 @@ function addTranslation(text) {
   if (translationOutput.querySelector(".italic")) {
     translationOutput.innerHTML = "";
   }
+  
+  // No añadir la misma palabra dos veces seguidas
+  if (detectedWords[detectedWords.length - 1] === text) {
+    return;
+  }
 
-  const translationItem = document.createElement("p");
-  translationItem.className = "text-gray-800 text-lg mb-2";
-  translationItem.textContent = text;
-  translationOutput.appendChild(translationItem);
+  detectedWords.push(text);
+
+  // Actualizar el texto
+  translationOutput.innerHTML = `<p class="text-gray-800 text-lg">${detectedWords.join(" ")}</p>`;
+  
+  // Actualizar contadores
+  gesturesDetected++;
+  wordsTranslated = detectedWords.length;
+  gesturesCount.textContent = gesturesDetected;
+  wordsCount.textContent = wordsTranslated;
 
   // Speak if voice is enabled
   if (voiceToggle.checked) {
@@ -272,6 +205,7 @@ function speakText(text) {
 clearTranslationBtn.addEventListener("click", () => {
   translationOutput.innerHTML =
     '<p class="text-gray-400 text-center italic">La traducción aparecerá aquí...</p>';
+  detectedWords = []; // Limpiar el historial
   gesturesDetected = 0;
   wordsTranslated = 0;
   gesturesCount.textContent = "0";
