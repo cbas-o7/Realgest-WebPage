@@ -1,11 +1,11 @@
 const API_URL = `http://localhost:3000/api/gestures/`;
 
-const sendToBackend = async (landmarks) => {
+const predictSequence = async (sequence) => {
   try {
-    const response = await fetch(`${API_URL}landmarks`, {
+    const response = await fetch(`${API_URL}predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(landmarks),
+      body: JSON.stringify({ sequence }),
     });
 
     const result = await response.json();
@@ -35,4 +35,4 @@ const collectSequence = async (label, sequence) => {
   }
 };
 
-export { sendToBackend, collectSequence }; 
+export { predictSequence, collectSequence }; 

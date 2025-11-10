@@ -1,13 +1,21 @@
-import { sendToBackend } from "../api/gestures.service.js";
+import { predictSequence } from "../api/gestures.service.js";
 import HolisticManager from "./HolisticManager.js";
 
 let latestLandmarks = null;
+
 let videoStream = null;
 let sessionStartTime = null;
 let sessionInterval = null;
 let gesturesDetected = 0;
 let wordsTranslated = 0;
-let detectedWords = []; // Para guardar las palabras
+let detectedWords = [];
+
+// BÚFER ---
+let sequenceBuffer = [];
+let isHandVisible = false;
+let handTimeout = null;
+const GESTURE_TIMEOUT = 1500; // 500ms de espera antes de enviar
+const MIN_SEQUENCE_FRAMES = 30; // Mínimo 10 fotogramas para un gesto
 
 // DOM Elements
 const videoElement = document.getElementById("videoElement");
@@ -30,24 +38,49 @@ const canvasElement = document.getElementById("outputCanvas");
 const holisticManager = new HolisticManager({
   videoElement: videoElement,
   canvasElement: canvasElement,
-  onResults: (landmarks) => {
-    // actualizar variable compartida que usa el resto del archivo
-    latestLandmarks = landmarks;
+  onResults: (landmarks, results) => { // 'landmarks' es tu objeto procesado
+    
+    // --- 3. LÓGICA DE DETECCIÓN DE MANOS Y BÚFER ---
+    const handsDetected =
+      (landmarks.leftHand && landmarks.leftHand.length > 0) ||
+      (landmarks.rightHand && landmarks.rightHand.length > 0);
+
+    if (handsDetected) {
+      // Si hay manos, sigue grabando
+      if (handTimeout) {
+        clearTimeout(handTimeout); // Cancela el temporizador si la mano reaparece
+        handTimeout = null;
+      }
+      isHandVisible = true;
+      sequenceBuffer.push(landmarks); // Añade el fotograma al búfer
+    
+    } else if (isHandVisible) {
+      // Si no hay manos, PERO las había en el fotograma anterior
+      // Inicia un temporizador.
+      if (!handTimeout) {
+        handTimeout = setTimeout(async () => {
+          console.log(`Mano desapareció, enviando ${sequenceBuffer.length} fotogramas...`);
+          isHandVisible = false;
+          
+          if (sequenceBuffer.length > MIN_SEQUENCE_FRAMES) {
+            // Envía la secuencia al backend para predecir
+            const result = await predictSequence(sequenceBuffer);
+            if (result && result.prediction && result.prediction !== "---") {
+              addTranslation(result.prediction);
+            }
+          }
+          
+          // Limpia el búfer para el próximo gesto
+          sequenceBuffer = [];
+          handTimeout = null;
+        }, GESTURE_TIMEOUT);
+      }
+    }
+    // Si no hay manos y no había antes, no hace nada.
+    // ----------------------------------------------
   },
 });
 
-// === Enviar datos al backend cada 2 segundos ===
-setInterval(async() => {
-  if (latestLandmarks && videoStream) {
-    const result = await sendToBackend(latestLandmarks);
-    
-    // --- NUEVO: Procesar la predicción ---
-    if (result && result.prediction) {
-      addTranslation(result.prediction);
-    }
-    // ------------------------------------
-  }
-}, 100);
 
 // Reemplazar startHolistic por llamada al manager.start()
 function startHolistic() {
@@ -99,6 +132,11 @@ stopCameraBtn.addEventListener("click", () => {
 
     // detener el manager y limpiar canvas
     holisticManager.stop();
+
+    sequenceBuffer = [];
+    if (handTimeout) clearTimeout(handTimeout);
+    handTimeout = null;
+    isHandVisible = false;
 
     startCameraBtn.classList.remove("hidden");
     stopCameraBtn.classList.add("hidden");

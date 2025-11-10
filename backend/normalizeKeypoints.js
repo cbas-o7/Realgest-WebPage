@@ -1,3 +1,8 @@
+// --- Normalización de Keypoints (¡MUY IMPORTANTE!) ---
+// Esta función es crucial. Un modelo no puede aprender de coordenadas
+// absolutas (x, y, z). Necesitamos normalizarlas.
+// Esta es una normalización BÁSICA.
+
 function normalizeKeypoints(sequence) {
   
   const SEQUENCE_LENGTH = 30; // Asegurarse de que esto coincida con el valor usado en train.js
@@ -7,13 +12,9 @@ function normalizeKeypoints(sequence) {
   const FACE_LANDMARKS = 468;
   const HAND_LANDMARKS = 21;
 
-  const POSE_DIM = 4;   // x,y,z,visibility
-  const FACE_DIM = 3;   // x,y,z
-  const HAND_DIM = 3;   // x,y,z
-
-  const FEATURES_PER_FRAME = POSE_LANDMARKS * POSE_DIM +
-                             FACE_LANDMARKS * FACE_DIM +
-                             HAND_LANDMARKS * HAND_DIM * 2; // left + right
+  const FEATURES_PER_FRAME = POSE_LANDMARKS * 4 + 
+                             FACE_LANDMARKS * 3 + 
+                             HAND_LANDMARKS * 3 * 2; // (1662)
 
   const normalizedFrames = [];
 
@@ -88,14 +89,13 @@ function normalizeKeypoints(sequence) {
   }
 
   // Truncar si es muy larga
-  if (flatSequence.length > SEQUENCE_LENGTH * 1629) {
-     flatSequence = flatSequence.slice(0, SEQUENCE_LENGTH * 1629);
+  if (flatSequence.length > SEQUENCE_LENGTH * FEATURES_PER_FRAME) { 
+     flatSequence = flatSequence.slice(0, SEQUENCE_LENGTH * FEATURES_PER_FRAME); 
   }
 
   // Corrección: Asegurarnos de que el relleno se haga si el primer frame no existe
   if (normalizedFrames.length === 0) {
-      const keypointsInFrame = 1629; // Número de características por fotograma
-      flatSequence = Array(SEQUENCE_LENGTH * keypointsInFrame).fill(0);
+      flatSequence = Array(SEQUENCE_LENGTH * FEATURES_PER_FRAME).fill(0);
   }
 
 

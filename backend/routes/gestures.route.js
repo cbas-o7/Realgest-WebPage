@@ -2,19 +2,19 @@ import express from "express";
 import * as tf from "@tensorflow/tfjs-node";
 //import "@tensorflow/tfjs-backend-cpu";
 import fs from "fs";
-import path, { normalize } from "path";
+import path from "path";
 import { fileURLToPath } from "url";
 import { normalizeKeypoints } from "../normalizeKeypoints.js";
 
 const router = express.Router();
 
-const DATA_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), "data/gestures.json");
+// 1. Obtiene la ruta absoluta del archivo actual (script.js)
+const __filename = fileURLToPath(import.meta.url);
+// 2. Obtiene el directorio del archivo actual (backend/routes)
+const __dirname = path.dirname(__filename);
+// 3. Usa '..' en path.join para navegar hacia atrás
+const DATA_PATH = path.join(__dirname, '..', 'data', 'gestures.json');
 
-// --- Constantes para predicción ---
-const SEQUENCE_LENGTH = 30; // Debe coincidir con el de train.js
-let sequenceBuffer = []; // Búfer para los fotogramas
-let lastPrediction = "---";
-// ----------------------------------
 
 router.post("/collect", async (req, res) => {
   try {
@@ -50,169 +50,46 @@ router.post("/collect", async (req, res) => {
     res.status(500).json({ message: "Error en el servidor", error: err.message });
   }
 });
-/* 
-function normalizeKeypoints(sequence) {
-  // Constantes esperadas (ajusta si usas menos landmarks)
-  const POSE_LANDMARKS = 33;
-  const FACE_LANDMARKS = 468;
-  const HAND_LANDMARKS = 21;
-
-  const POSE_DIM = 4;   // x,y,z,visibility
-  const FACE_DIM = 3;   // x,y,z
-  const HAND_DIM = 3;   // x,y,z
-
-  const FEATURES_PER_FRAME = POSE_LANDMARKS * POSE_DIM +
-                             FACE_LANDMARKS * FACE_DIM +
-                             HAND_LANDMARKS * HAND_DIM * 2; // left + right
-
-  const normalizedFrames = [];
-
-  for (const frame of sequence) {
-    const frameFeatures = [];
-
-    // Pose (33 landmarks * 4)
-    for (let i = 0; i < POSE_LANDMARKS; i++) {
-      const p = (frame.pose && frame.pose[i]) || {};
-      frameFeatures.push(
-        Number(p.x || 0),
-        Number(p.y || 0),
-        Number(p.z || 0),
-        Number(p.visibility || 0)
-      );
-    }
-
-    // Face (468 landmarks * 3)
-    for (let i = 0; i < FACE_LANDMARKS; i++) {
-      const f = (frame.face && frame.face[i]) || {};
-      frameFeatures.push(
-        Number(f.x || 0),
-        Number(f.y || 0),
-        Number(f.z || 0)
-      );
-    }
-
-    // Left hand (21 * 3)
-    for (let i = 0; i < HAND_LANDMARKS; i++) {
-      const h = (frame.leftHand && frame.leftHand[i]) || {};
-      frameFeatures.push(
-        Number(h.x || 0),
-        Number(h.y || 0),
-        Number(h.z || 0)
-      );
-    }
-
-    // Right hand (21 * 3)
-    for (let i = 0; i < HAND_LANDMARKS; i++) {
-      const h = (frame.rightHand && frame.rightHand[i]) || {};
-      frameFeatures.push(
-        Number(h.x || 0),
-        Number(h.y || 0),
-        Number(h.z || 0)
-      );
-    }
-
-    // Asegurar longitud por si algo inesperado pasó
-    if (frameFeatures.length !== FEATURES_PER_FRAME) {
-      // rellenar/recortar para que siempre coincida
-      if (frameFeatures.length < FEATURES_PER_FRAME) {
-        frameFeatures.push(...Array(FEATURES_PER_FRAME - frameFeatures.length).fill(0));
-      } else {
-        frameFeatures.length = FEATURES_PER_FRAME;
-      }
-    }
-
-    normalizedFrames.push(frameFeatures);
-  }
-  
-  // Aplanar la secuencia de fotogramas en un solo vector por ahora
-  // Un enfoque más avanzado usaría relleno (padding) y una LSTM.
-  // Pero para empezar, aplanemos los primeros SEQUENCE_LENGTH fotogramas.
-  
-  let flatSequence = [];
-  for (let i = 0; i < SEQUENCE_LENGTH; i++) {
-    if (i < normalizedFrames.length) {
-      flatSequence.push(...normalizedFrames[i]);
-    } else {
-      flatSequence.push(...Array(FEATURES_PER_FRAME).fill(0));
-    }
-  }
-
-  // Truncar si es muy larga
-  if (flatSequence.length > SEQUENCE_LENGTH * 1629) {
-     flatSequence = flatSequence.slice(0, SEQUENCE_LENGTH * 1629);
-  }
-
-  // Corrección: Asegurarnos de que el relleno se haga si el primer frame no existe
-  if (normalizedFrames.length === 0) {
-      const keypointsInFrame = 1629; // Número de características por fotograma
-      flatSequence = Array(SEQUENCE_LENGTH * keypointsInFrame).fill(0);
-  }
-
-
-  return flatSequence;
-} */
 
 // Registro
-router.post("/landmarks", async (req, res) => {
-  const SEQUENCE_LENGTH = 30;
+router.post("/predict", async (req, res) => {
   const { model, modelInfo } = req; // Obtener modelo cargado desde server.js
-  let prediction = null;
+  const { sequence } = req.body;
+
+  if (!model || !modelInfo) {
+    return res.status(503).json({ message: "El modelo no está cargado" });
+  }
+  if (!sequence || sequence.length === 0) {
+    return res.status(400).json({ message: "Falta la secuencia de fotogramas" });
+  }
   
   try {
-    const data = req.body;
-    
-    // 1. Agregar fotograma al búfer
-    const frameLandmarks = {
-      pose: data.pose || [],
-      face: data.face || [],
-      leftHand: data.leftHand || [],
-      rightHand: data.rightHand || [],
-    };
-    sequenceBuffer.push(frameLandmarks);
+    let prediction = "---";
+    let confidence = 0;
+    let penecito;
 
-    // 2. Mantener el búfer al tamaño de la secuencia
-    if (sequenceBuffer.length > SEQUENCE_LENGTH) {
-      sequenceBuffer.shift(); // Elimina el fotograma más antiguo
-    }
+    tf.tidy(() => {
+      // 1. Normalizar la secuencia recibida
+      const input = normalizeKeypoints(sequence);
+      const tensor = tf.tensor2d([input], [1, input.length]);
 
-    // 3. Predecir solo si el modelo está cargado y el búfer está lleno
-    if (model && modelInfo && sequenceBuffer.length === SEQUENCE_LENGTH) {
-      tf.tidy(() => {
-        // 4. Normalizar la secuencia del búfer
-        
-        const input = normalizeKeypoints(sequenceBuffer);
-        const tensor = tf.tensor2d([input], [1, input.length]);
+      // 2. Realizar la predicción
+      const result = model.predict(tensor);
+      const predictionData = result.dataSync();
+      
+      // 3. Obtener la predicción con mayor confianza
+      const maxProbIndex = result.argMax(1).dataSync()[0];
+      confidence = predictionData[maxProbIndex];
 
-        // 5. Realizar la predicción
-        const result = model.predict(tensor);
-        const predictionData = result.dataSync();
-        
-        // 6. Obtener la predicción con mayor confianza
-        const maxProbIndex = result.argMax(1).dataSync()[0];
-        const maxProb = predictionData[maxProbIndex];
-
-        // Umbral de confianza
-        if (maxProb > 0.7) { 
-          prediction = modelInfo.labels[maxProbIndex];
-          
-          // Lógica para evitar spam (solo enviar si cambia la predicción)
-          if (prediction !== lastPrediction) {
-            console.log(`🤖 Predicción: ${prediction} (Confianza: ${maxProb.toFixed(2)})`);
-            lastPrediction = prediction;
-          } else {
-            prediction = null; // No enviar si es la misma que la anterior
-          }
-        } else {
-          lastPrediction = "---"; // Resetear si no hay confianza
-        }
-      });
-    }
-
-    res.status(200).json({ 
-      message: "Landmarks recibidos", 
-      prediction: prediction // Enviar la nueva predicción (o null)
+      if (confidence > 0.7) { // Umbral de confianza
+        prediction = modelInfo.labels[maxProbIndex];
+        penecito = true ? " ":`{${predictionData}, ${result}}`
+      }
     });
-    
+
+    console.log(`Predicción: ${prediction} (Confianza: ${confidence.toFixed(2)})  ${penecito}`);
+    res.status(200).json({ prediction, confidence });
+
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error en el servidor", error: err.message });

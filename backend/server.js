@@ -34,7 +34,7 @@ const app = express();
 // --- CARGAR EL MODELO ---
 let model = null;
 let modelInfo = null;
-const MODEL_PATH = path.join(__dirname, "model/model.json");
+export const MODEL_PATH = path.join(__dirname, "model/model.json");
 const INFO_PATH = path.join(__dirname, "model/model_info.json");
 
 async function loadModel() {
@@ -49,9 +49,9 @@ async function loadModel() {
     modelInfo = JSON.parse(infoData);
     
     // Calentar el modelo
-    tf.tidy(() => {
-        model.predict(tf.zeros([1, 30 * 1629])); // 30 frames * 1629 features
-    });
+    /* tf.tidy(() => {
+        model.predict(tf.zeros([1, 30 * 1662])); // 30 frames * 1629 features
+    }); */
 
     console.log(`✅ Modelo y ${modelInfo.labels.length} etiquetas cargadas correctamente.`);
   } catch (err) {
