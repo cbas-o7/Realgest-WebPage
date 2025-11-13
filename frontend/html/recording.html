@@ -1,196 +1,160 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar Grabación - RealGest</title>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" 
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Grabación - RealGest</title>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" 
     crossorigin="anonymous"></script> -->
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: "#55c4bd",
-              secondary: "#18416d",
-            },
+  <script src="../js/tailwind.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#55c4bd",
+            secondary: "#18416d",
           },
         },
-      };
-    </script>
-  </head>
-  <body class="bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202025-09-22%20at%2019.41.28-oE6eFram0EL91WXRTEG82W4fL1HalH.jpeg"
-              alt="RealGest Logo"
-              class="h-12 w-12"
-            />
-            <div>
-              <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
-              <p class="text-sm text-gray-600">Iniciar Grabación</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-4">
-            <a
-              href="dashboard.html"
-              class="text-gray-600 hover:text-secondary font-medium transition-colors"
-            >
-              ← Volver al Dashboard
-            </a>
-            <button
-              id="logoutBtn"
-              class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              Cerrar Sesión
-            </button>
+      },
+    };
+  </script>
+</head>
+
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img
+            src="../static/realgest.png"
+            alt="RealGest Logo" class="h-12 w-12" />
+          <div>
+            <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
+            <p class="text-sm text-gray-600">Iniciar Grabación</p>
           </div>
         </div>
-      </nav>
-    </header>
+        <div class="flex items-center gap-4">
+          <a href="dashboard.html" class="text-gray-600 hover:text-secondary font-medium transition-colors">
+            ← Ir atras
+          </a>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Title Section -->
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-secondary mb-2">
-          Comunicación en Tiempo Real
-        </h2>
-        <p class="text-gray-600">
-          Realiza gestos frente a la cámara y tradúcelos instantáneamente
+          <a href="quick-gestures.html" id="gestosRapidosBtn"
+            class="bg-primary hover:bg-opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            👋 Gestos Rápidos
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Title Section -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-secondary mb-2">
+        Comunicación en Tiempo Real
+      </h2>
+      <p class="text-gray-600">
+        Realiza gestos frente a la cámara y tradúcelos instantáneamente
+      </p>
+    </div>
+
+    <!-- Camera Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="relative bg-gray-900 rounded-lg overflow-hidden mb-4" style="aspect-ratio: 16/9">
+        <video id="videoElement" autoplay playsinline class="w-full h-full object-cover"></video>
+
+        <canvas id="outputCanvas" class="absolute top-0 left-0 w-full h-full" style="background: transparent;"></canvas>
+
+        <!-- Camera Status Indicator -->
+        <div id="cameraStatus"
+          class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+          <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+          Cámara Inactiva
+        </div>
+
+        <!-- No Camera Message -->
+        <div id="noCameraMessage" class="absolute inset-0 flex items-center justify-center text-white text-center p-8">
+          <div>
+            <div class="text-6xl mb-4">🎥</div>
+            <p class="text-xl font-semibold mb-2">Cámara no iniciada</p>
+            <p class="text-gray-300">
+              Presiona "Iniciar Cámara" para comenzar
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Camera Controls -->
+      <div class="flex gap-4 justify-center">
+        <button id="startCameraBtn"
+          class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2">
+          <span class="text-xl">▶</span>
+          Iniciar Cámara
+        </button>
+        <button id="stopCameraBtn"
+          class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
+          <span class="text-xl">⏹</span>
+          Detener Cámara
+        </button>
+      </div>
+    </div>
+
+    <!-- Translation Output -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <h3 class="text-xl font-bold text-secondary mb-4 flex items-center gap-2">
+        <span>💬</span>
+        Traducción en Tiempo Real
+      </h3>
+      <div id="translationOutput" class="bg-gray-50 rounded-lg p-6 min-h-32 border-2 border-gray-200">
+        <p class="text-gray-400 text-center italic">
+          La traducción aparecerá aquí...
         </p>
       </div>
 
-      <!-- Camera Section -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div
-          class="relative bg-gray-900 rounded-lg overflow-hidden mb-4"
-          style="aspect-ratio: 16/9"
-        >
-          <video
-            id="videoElement"
-            autoplay
-            playsinline
-            class="w-full h-full object-cover"
-          ></video>
-
-          <canvas
-            id="outputCanvas"
-            class="absolute top-0 left-0 w-full h-full"
-            style="background: transparent;"
-          ></canvas>
-
-          <!-- Camera Status Indicator -->
-          <div
-            id="cameraStatus"
-            class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2"
-          >
-            <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Cámara Inactiva
-          </div>
-
-          <!-- No Camera Message -->
-          <div
-            id="noCameraMessage"
-            class="absolute inset-0 flex items-center justify-center text-white text-center p-8"
-          >
-            <div>
-              <div class="text-6xl mb-4">🎥</div>
-              <p class="text-xl font-semibold mb-2">Cámara no iniciada</p>
-              <p class="text-gray-300">
-                Presiona "Iniciar Cámara" para comenzar
-              </p>
-            </div>
-          </div>
+      <!-- Voice Controls -->
+      <div class="mt-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="voiceToggle" class="w-5 h-5 text-primary rounded focus:ring-primary" />
+            <span class="text-gray-700 font-medium">Activar Voz</span>
+          </label>
         </div>
+        <button id="clearTranslationBtn" class="text-gray-500 hover:text-gray-700 font-medium transition-colors">
+          Limpiar
+        </button>
+      </div>
+    </div>
 
-        <!-- Camera Controls -->
-        <div class="flex gap-4 justify-center">
-          <button
-            id="startCameraBtn"
-            class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
-          >
-            <span class="text-xl">▶</span>
-            Iniciar Cámara
-          </button>
-          <button
-            id="stopCameraBtn"
-            class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden flex items-center gap-2"
-          >
-            <span class="text-xl">⏹</span>
-            Detener Cámara
-          </button>
-        </div>
+    <!-- Recording Stats -->
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-gray-600 text-sm mb-1">Gestos Detectados</p>
+        <p id="gesturesCount" class="text-3xl font-bold text-primary">0</p>
       </div>
 
-      <!-- Translation Output -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h3
-          class="text-xl font-bold text-secondary mb-4 flex items-center gap-2"
-        >
-          <span>💬</span>
-          Traducción en Tiempo Real
-        </h3>
-        <div
-          id="translationOutput"
-          class="bg-gray-50 rounded-lg p-6 min-h-32 border-2 border-gray-200"
-        >
-          <p class="text-gray-400 text-center italic">
-            La traducción aparecerá aquí...
-          </p>
-        </div>
-
-        <!-- Voice Controls -->
-        <div class="mt-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                id="voiceToggle"
-                class="w-5 h-5 text-primary rounded focus:ring-primary"
-              />
-              <span class="text-gray-700 font-medium">Activar Voz</span>
-            </label>
-          </div>
-          <button
-            id="clearTranslationBtn"
-            class="text-gray-500 hover:text-gray-700 font-medium transition-colors"
-          >
-            Limpiar
-          </button>
-        </div>
+      <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-gray-600 text-sm mb-1">Palabras Traducidas</p>
+        <p id="wordsCount" class="text-3xl font-bold text-secondary">0</p>
       </div>
 
-      <!-- Recording Stats -->
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-lg shadow-md text-center">
-          <p class="text-gray-600 text-sm mb-1">Gestos Detectados</p>
-          <p id="gesturesCount" class="text-3xl font-bold text-primary">0</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-lg shadow-md text-center">
-          <p class="text-gray-600 text-sm mb-1">Palabras Traducidas</p>
-          <p id="wordsCount" class="text-3xl font-bold text-secondary">0</p>
-        </div>
-
-        <div class="bg-white p-6 rounded-lg shadow-md text-center">
-          <p class="text-gray-600 text-sm mb-1">Tiempo de Sesión</p>
-          <p id="sessionTime" class="text-3xl font-bold text-primary">00:00</p>
-        </div>
+      <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <p class="text-gray-600 text-sm mb-1">Tiempo de Sesión</p>
+        <p id="sessionTime" class="text-3xl font-bold text-primary">00:00</p>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <!-- Mediapipe Holistic -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
+  <!-- Mediapipe Holistic -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
 
-    <script type="module" src="../js/recording.js"></script>
-  </body>
+  <script type="module" src="../js/recording.js"></script>
+</body>
+
 </html>
