@@ -4,7 +4,11 @@ import * as tf from "@tensorflow/tfjs-node";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { normalizeKeypoints } from "../normalizeKeypoints.js";
+import {
+  normalizeKeypoints,
+  SEQUENCE_LENGTH,
+  FEATURES_PER_FRAME,
+} from "../normalizeKeypoints.js";
 
 const router = express.Router();
 
@@ -71,7 +75,8 @@ router.post("/predict", async (req, res) => {
     tf.tidy(() => {
       // 1. Normalizar la secuencia recibida
       const input = normalizeKeypoints(sequence);
-      const tensor = tf.tensor2d([input], [1, input.length]);
+      
+      const tensor = tf.tensor3d([input], [1, SEQUENCE_LENGTH, FEATURES_PER_FRAME]);
 
       // 2. Realizar la predicción
       const result = model.predict(tensor);

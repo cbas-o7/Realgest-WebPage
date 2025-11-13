@@ -7,6 +7,7 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { SEQUENCE_LENGTH, FEATURES_PER_FRAME } from "./normalizeKeypoints.js"; // <-- ¡Importa!
 
 // --- CONFIGURACIÓN DE ARCHIVOS ---
 
@@ -49,9 +50,9 @@ async function loadModel() {
     modelInfo = JSON.parse(infoData);
     
     // Calentar el modelo
-    /* tf.tidy(() => {
-        model.predict(tf.zeros([1, 30 * 1662])); // 30 frames * 1629 features
-    }); */
+    tf.tidy(() => {
+        model.predict(tf.zeros([1, SEQUENCE_LENGTH, FEATURES_PER_FRAME]));
+    });
 
     console.log(`✅ Modelo y ${modelInfo.labels.length} etiquetas cargadas correctamente.`);
   } catch (err) {

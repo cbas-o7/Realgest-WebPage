@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestos Rápidos - RealGest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#55c4bd',
+                        secondary: '#18416d'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="/images/whatsapp-20image-202025-09-22-20at-2019.jpeg" alt="RealGest Logo" class="h-12 w-12">
+                    <div>
+                        <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
+                        <p class="text-sm text-gray-600">Gestos Rápidos</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-secondary font-medium transition-colors">
+                        ← Volver al Dashboard
+                    </a>
+                    <button id="logoutBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Title Section -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-secondary mb-2">Gestos Rápidos</h2>
+            <p class="text-gray-600">Toca un gesto para escuchar su pronunciación</p>
+        </div>
+
+        <!-- Added IoT Device Control Toggle -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-secondary mb-1">Dispositivo IoT</h3>
+                    <p class="text-sm text-gray-600">Conectar dispositivo externo para gestos</p>
+                </div>
+                <button id="iotToggle" class="relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-gray-300">
+                    <span id="iotToggleCircle" class="inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform translate-x-1"></span>
+                </button>
+            </div>
+            <div id="iotStatus" class="mt-4 hidden">
+                <div class="flex items-center gap-2 text-sm">
+                    <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-green-600 font-medium">Dispositivo conectado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestos Personalizados -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-secondary">Gestos Personalizados</h3>
+                <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold">12 gestos</span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Hola">
+                    <div class="text-4xl mb-2">👋</div>
+                    <p class="font-semibold text-gray-800">Hola</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Gracias">
+                    <div class="text-4xl mb-2">🙏</div>
+                    <p class="font-semibold text-gray-800">Gracias</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Por favor">
+                    <div class="text-4xl mb-2">🙌</div>
+                    <p class="font-semibold text-gray-800">Por favor</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Sí">
+                    <div class="text-4xl mb-2">👍</div>
+                    <p class="font-semibold text-gray-800">Sí</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="No">
+                    <div class="text-4xl mb-2">👎</div>
+                    <p class="font-semibold text-gray-800">No</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Agua">
+                    <div class="text-4xl mb-2">💧</div>
+                    <p class="font-semibold text-gray-800">Agua</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Comida">
+                    <div class="text-4xl mb-2">🍽️</div>
+                    <p class="font-semibold text-gray-800">Comida</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Baño">
+                    <div class="text-4xl mb-2">🚻</div>
+                    <p class="font-semibold text-gray-800">Baño</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Descanso">
+                    <div class="text-4xl mb-2">😴</div>
+                    <p class="font-semibold text-gray-800">Descanso</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Feliz">
+                    <div class="text-4xl mb-2">😊</div>
+                    <p class="font-semibold text-gray-800">Feliz</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Triste">
+                    <div class="text-4xl mb-2">😢</div>
+                    <p class="font-semibold text-gray-800">Triste</p>
+                </button>
+
+                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Me gusta">
+                    <div class="text-4xl mb-2">❤️</div>
+                    <p class="font-semibold text-gray-800">Me gusta</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Gestos de Emergencia -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-red-600">Gestos de Emergencia</h3>
+                <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">6 gestos</span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Ayuda urgente">
+                    <div class="text-4xl mb-2">🆘</div>
+                    <p class="font-semibold text-red-800">Ayuda</p>
+                </button>
+
+                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Dolor">
+                    <div class="text-4xl mb-2">😣</div>
+                    <p class="font-semibold text-red-800">Dolor</p>
+                </button>
+
+                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Emergencia médica">
+                    <div class="text-4xl mb-2">🚑</div>
+                    <p class="font-semibold text-red-800">Médico</p>
+                </button>
+
+                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Llamar familia">
+                    <div class="text-4xl mb-2">📞</div>
+                    <p class="font-semibold text-red-800">Llamar</p>
+                </button>
+
+                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Me siento mal">
+                    <div class="text-4xl mb-2">🤒</div>
+                    <p class="font-semibold text-red-800">Me siento mal</p>
+                </button>
+
+                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Necesito asistencia">
+                    <div class="text-4xl mb-2">⚠️</div>
+                    <p class="font-semibold text-red-800">Asistencia</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- TTS Status -->
+        <div id="ttsStatus" class="fixed bottom-8 right-8 bg-secondary text-white px-6 py-3 rounded-lg shadow-lg hidden">
+            <p class="font-semibold">🔊 Reproduciendo...</p>
+        </div>
+    </main>
+
+    <script src="../js/gestos-rapidos.js"></script>
+</body>
+</html>

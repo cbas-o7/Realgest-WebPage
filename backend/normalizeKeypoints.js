@@ -2,12 +2,9 @@
 // Esta función es crucial. Un modelo no puede aprender de coordenadas
 // absolutas (x, y, z). Necesitamos normalizarlas.
 // Esta es una normalización BÁSICA.
-
-function normalizeKeypoints(sequence) {
   
-  const SEQUENCE_LENGTH = 30; // Asegurarse de que esto coincida con el valor usado en train.js
+  const SEQUENCE_LENGTH = 30; 
 
-  // Constantes esperadas (ajusta si usas menos landmarks)
   const POSE_LANDMARKS = 33;
   const FACE_LANDMARKS = 468;
   const HAND_LANDMARKS = 21;
@@ -16,8 +13,10 @@ function normalizeKeypoints(sequence) {
                              FACE_LANDMARKS * 3 + 
                              HAND_LANDMARKS * 3 * 2; // (1662)
 
+function normalizeKeypoints(sequence) {
   const normalizedFrames = [];
 
+  //  Extrae las características de cada fotograma
   for (const frame of sequence) {
     const frameFeatures = [];
 
@@ -75,31 +74,22 @@ function normalizeKeypoints(sequence) {
     normalizedFrames.push(frameFeatures);
   }
   
-  // Aplanar la secuencia de fotogramas en un solo vector por ahora
-  // Un enfoque más avanzado usaría relleno (padding) y una LSTM.
-  // Pero para empezar, aplanemos los primeros SEQUENCE_LENGTH fotogramas.
+  //    Rellena (o trunca) la secuencia a SEQUENCE_LENGTH (30) fotogramas
+  //    No aplanamos, devolvemos un array de arrays: [30, 1662]
   
-  let flatSequence = [];
+  const paddedFrames = [];
   for (let i = 0; i < SEQUENCE_LENGTH; i++) {
     if (i < normalizedFrames.length) {
-      flatSequence.push(...normalizedFrames[i]);
+      // Añade el fotograma con sus 1662 características
+      paddedFrames.push(normalizedFrames[i]);
     } else {
-      flatSequence.push(...Array(FEATURES_PER_FRAME).fill(0));
+      // Añade un fotograma vacío (relleno de ceros)
+      paddedFrames.push(Array(FEATURES_PER_FRAME).fill(0));
     }
   }
 
-  // Truncar si es muy larga
-  if (flatSequence.length > SEQUENCE_LENGTH * FEATURES_PER_FRAME) { 
-     flatSequence = flatSequence.slice(0, SEQUENCE_LENGTH * FEATURES_PER_FRAME); 
-  }
-
-  // Corrección: Asegurarnos de que el relleno se haga si el primer frame no existe
-  if (normalizedFrames.length === 0) {
-      flatSequence = Array(SEQUENCE_LENGTH * FEATURES_PER_FRAME).fill(0);
-  }
-
-
-  return flatSequence;
+  return paddedFrames;
 }
 
-export { normalizeKeypoints };
+// Exportamos las constantes para que train.js las use
+export { normalizeKeypoints, SEQUENCE_LENGTH, FEATURES_PER_FRAME };

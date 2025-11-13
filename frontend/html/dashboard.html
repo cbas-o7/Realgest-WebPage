@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +19,9 @@
         }
     </script>
 </head>
+
 <body class="bg-gray-50">
-     <!-- Header  -->
+    <!-- Header  -->
     <header class="bg-white shadow-sm">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
@@ -31,8 +33,14 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-gray-600">Bienvenido, <span class="font-semibold text-secondary">Usuario</span></span>
-                    <button id="logoutBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                    <a href="gestos-rapidos.html" id="gestosRapidosBtn"
+                        class="bg-primary hover:bg-opacity-90 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        👋 Gestos Rápidos
+                    </a>
+                    <span class="text-gray-600">Bienvenido, <span
+                            class="font-semibold text-secondary">Usuario</span></span>
+                    <button id="logoutBtn"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
                         Cerrar Sesión
                     </button>
                 </div>
@@ -40,36 +48,40 @@
         </nav>
     </header>
 
-     <!-- Main Content  -->
+    <!-- Main Content  -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-         <!-- Welcome Section  -->
+        <!-- Welcome Section  -->
         <div class="bg-gradient-to-r from-secondary to-primary text-white rounded-lg p-8 mb-8">
             <h2 class="text-3xl font-bold mb-2">¡Bienvenido a RealGest!</h2>
             <p class="text-gray-100">Comienza a comunicarte sin barreras</p>
         </div>
 
-         <!-- Quick Actions  -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <a href="./recording.html" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left border-l-4 border-primary">
+        <!-- Quick Actions  -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <a href="./recording.html"
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left border-l-4 border-primary">
                 <div class="text-3xl mb-3">🎥</div>
                 <h3 class="text-xl font-bold text-secondary mb-2">Iniciar Comunicación</h3>
                 <p class="text-gray-600 text-sm">Comienza a traducir gestos en tiempo real</p>
             </a>
 
-            <a href="./gestures.html" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left border-l-4 border-secondary">
+            <a href="./gestures.html"
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left border-l-4 border-secondary">
                 <div class="text-3xl mb-3">✏️</div>
                 <h3 class="text-xl font-bold text-secondary mb-2">Personalizar Gestos</h3>
                 <p class="text-gray-600 text-sm">Configura tu vocabulario personalizado</p>
             </a>
 
-            <!-- <button class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-left border-l-4 border-primary">
-                <div class="text-3xl mb-3">📊</div>
-                <h3 class="text-xl font-bold text-secondary mb-2">Ver Estadísticas</h3>
-                <p class="text-gray-600 text-sm">Revisa tu progreso y uso</p>
-            </button> -->
+            <a href="./gestos-rapidos.html"
+                class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border-l-4 border-secondary">
+                <div class="text-3xl mb-3">👋</div>
+                <h3 class="text-xl font-bold text-secondary mb-2">Gestos Rápidos</h3>
+                <p class="text-gray-600 text-sm">Accede a tus gestos personalizados y de emergencia</p>
+            </a>
+
         </div>
 
-         <!-- Stats Section  -->
+        <!-- Stats Section  -->
         <div class="grid md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <p class="text-gray-600 text-sm mb-1">Gestos Registrados</p>
@@ -92,12 +104,13 @@
             </div>
         </div>
 
-         <!-- Recent Activity  -->
+        <!-- Recent Activity  -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h3 class="text-xl font-bold text-secondary mb-4">Actividad Reciente</h3>
             <div class="space-y-4">
                 <div class="flex items-center gap-4 pb-4 border-b">
-                    <div class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold">
+                    <div
+                        class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold">
                         G
                     </div>
                     <div class="flex-1">
@@ -107,7 +120,8 @@
                 </div>
 
                 <div class="flex items-center gap-4 pb-4 border-b">
-                    <div class="w-10 h-10 bg-secondary bg-opacity-20 rounded-full flex items-center justify-center text-secondary font-bold">
+                    <div
+                        class="w-10 h-10 bg-secondary bg-opacity-20 rounded-full flex items-center justify-center text-secondary font-bold">
                         S
                     </div>
                     <div class="flex-1">
@@ -117,7 +131,8 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold">
+                    <div
+                        class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold">
                         V
                     </div>
                     <div class="flex-1">
@@ -131,4 +146,5 @@
 
     <script src="../js/dashboard.js"></script>
 </body>
+
 </html>
