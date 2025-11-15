@@ -1,13 +1,3 @@
-// Logout functionality
-const logoutBtn = document.getElementById("logoutBtn")
-
-logoutBtn.addEventListener("click", () => {
-  const confirmLogout = confirm("¿Estás seguro de que deseas cerrar sesión?")
-  if (confirmLogout) {
-    window.location.href = "index.html"
-  }
-})
-
 // Initialize students from localStorage
 const students = JSON.parse(localStorage.getItem("students")) || []
 
@@ -161,9 +151,6 @@ function viewStudent(index) {
       <div class="flex gap-3">
         <button onclick="editLevel(${index})" class="flex-1 bg-secondary hover:bg-opacity-90 text-white py-2 rounded-lg font-medium">
           Cambiar Nivel
-        </button>
-        <button onclick="viewGestures(${index})" class="flex-1 bg-primary hover:bg-opacity-90 text-white py-2 rounded-lg font-medium">
-          Ver Gestos
         </button>
       </div>
     </div>

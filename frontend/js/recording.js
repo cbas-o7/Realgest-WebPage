@@ -26,7 +26,6 @@ const noCameraMessage = document.getElementById("noCameraMessage");
 const translationOutput = document.getElementById("translationOutput");
 const voiceToggle = document.getElementById("voiceToggle");
 const clearTranslationBtn = document.getElementById("clearTranslationBtn");
-const logoutBtn = document.getElementById("logoutBtn");
 const gesturesCount = document.getElementById("gesturesCount");
 const wordsCount = document.getElementById("wordsCount");
 const sessionTime = document.getElementById("sessionTime");
@@ -248,18 +247,6 @@ clearTranslationBtn.addEventListener("click", () => {
   wordsTranslated = 0;
   gesturesCount.textContent = "0";
   wordsCount.textContent = "0";
-});
-
-// Logout
-logoutBtn.addEventListener("click", () => {
-  if (videoStream) {
-    videoStream.getTracks().forEach((track) => track.stop());
-  }
-
-  const confirmLogout = confirm("¿Estás seguro de que deseas cerrar sesión?");
-  if (confirmLogout) {
-    window.location.href = "index.html";
-  }
 });
 
 // Cleanup on page unload
