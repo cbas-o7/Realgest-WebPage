@@ -2,10 +2,8 @@ import { collectSequence } from "../api/gestures.service.js";
 import HolisticManager from "./HolisticManager.js";
 
 let videoStream = null;
-let capturedGesture = null;
 let latestLandmarks = null;
 
-let savedGestures = []; // Esto seguirá guardando las "capturas" para la UI
 let recordingSequence = []; // Aquí guardaremos los frames para el modelo
 let isRecording = false;
 
@@ -130,7 +128,7 @@ captureGestureBtn.addEventListener("click", () => {
 
   showCaptureStatus(
     "info",
-    "Grabando gesto... Mantén el gesto por 2 segundos."
+    "Grabando gesto... Mantén el gesto por 3 segundos."
   );
 
   // Detiene la grabación después de 2 segundos
@@ -140,7 +138,7 @@ captureGestureBtn.addEventListener("click", () => {
     recordingIndicator.classList.add("hidden");
     captureGestureBtn.disabled = false;
 
-    if (recordingSequence.length < 10) {
+    if (recordingSequence.length < 30) {
       // Muy pocos fotogramas
       showCaptureStatus("error", "Error al capturar. Intenta de nuevo.");
       return;
@@ -160,19 +158,8 @@ captureGestureBtn.addEventListener("click", () => {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(videoElement, 0, 0);
 
-    capturedGesture = {
-      name: gestureName.value.trim(),
-      timestamp: Date.now(),
-      imageData: canvas.toDataURL("image/jpeg", 0.8),
-    };
 
-    // Guarda la *imagen* para la lista de la UI
-    savedGestures.unshift({
-      name: gestureName.value.trim(),
-      timestamp: Date.now(),
-      imageData: canvas.toDataURL("image/jpeg", 0.8),
-    });
-  }, 2000);
+  }, 1500);
 });
 
 // Save Gesture
@@ -195,10 +182,6 @@ gestureForm.addEventListener("submit", async (e) => {
     return;
   }
   // -----------------------------------
-
-  // Actualiza la UI (como lo tenías antes)
-  // Nota: `savedGestures` se llenó en el paso de captura
-  localStorage.setItem("realgest_gestures", JSON.stringify(savedGestures));
   //updateGesturesList();
   showCaptureStatus("success", "✓ Gesto guardado exitosamente");
 
@@ -209,7 +192,7 @@ gestureForm.addEventListener("submit", async (e) => {
 
   setTimeout(() => {
     captureStatus.classList.add("hidden");
-  }, 3000);
+  }, 1000);
 });
 
 // Show Capture Status

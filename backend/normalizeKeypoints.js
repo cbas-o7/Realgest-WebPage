@@ -10,7 +10,7 @@
   const HAND_LANDMARKS = 21;
 
   const FEATURES_PER_FRAME = POSE_LANDMARKS * 4 + 
-                             FACE_LANDMARKS * 3 + 
+                             //FACE_LANDMARKS * 3 + 
                              HAND_LANDMARKS * 3 * 2; // (1662)
 
 function normalizeKeypoints(sequence) {
@@ -32,14 +32,14 @@ function normalizeKeypoints(sequence) {
     }
 
     // Face (468 landmarks * 3)
-    for (let i = 0; i < FACE_LANDMARKS; i++) {
+    /* for (let i = 0; i < FACE_LANDMARKS; i++) {
       const f = (frame.face && frame.face[i]) || {};
       frameFeatures.push(
         Number(f.x || 0),
         Number(f.y || 0),
         Number(f.z || 0)
       );
-    }
+    } */
 
     // Left hand (21 * 3)
     for (let i = 0; i < HAND_LANDMARKS; i++) {
@@ -74,7 +74,7 @@ function normalizeKeypoints(sequence) {
     normalizedFrames.push(frameFeatures);
   }
   
-  //    Rellena (o trunca) la secuencia a SEQUENCE_LENGTH (30) fotogramas
+  //    Rellena (o trunca) la secuencia a SEQUENCE_LENGTH fotogramas
   //    No aplanamos, devolvemos un array de arrays: [30, 1662]
   
   const paddedFrames = [];

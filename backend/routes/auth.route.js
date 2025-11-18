@@ -14,7 +14,7 @@ router.post("/register", async (req, res) => {
     const user = new User({ username, email, password, role });
     await user.save();
 
-    res.status(201).json({ message: "Usuario registrado con éxito", user: { username: user.name, email: user.email, role: user.role } });
+    res.status(201).json({ message: "Usuario registrado con éxito", user: { id:user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error en el servidor", error: err.message });
@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ message: "Credenciales inválidas" });
 
-    res.json({ message: "Login exitoso", user: { username: user.name, email: user.email, role: user.role } });
+    res.json({ message: "Login exitoso", user: { id:user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     res.status(500).json({ message: "Error en el servidor", error: err.message });
   }

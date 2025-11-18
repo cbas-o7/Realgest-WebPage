@@ -4,6 +4,9 @@ import * as tf from "@tensorflow/tfjs-node";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
+import { getUser } from "../middleware/auth.js";
+import GestureLog from "../models/GestureLog.js";
 import {
   normalizeKeypoints,
   SEQUENCE_LENGTH,
@@ -56,8 +59,8 @@ router.post("/collect", async (req, res) => {
 });
 
 // Registro
-router.post("/predict", async (req, res) => {
-  const { model, modelInfo } = req; // Obtener modelo cargado desde server.js
+router.post("/predict", getUser, async (req, res) => {
+  const { model, modelInfo, user } = req; // Obtener modelo cargado desde server.js
   const { sequence } = req.body;
 
   if (!model || !modelInfo) {
@@ -70,29 +73,37 @@ router.post("/predict", async (req, res) => {
   try {
     let prediction = "---";
     let confidence = 0;
-    let penecito;
 
     tf.tidy(() => {
       // 1. Normalizar la secuencia recibida
       const input = normalizeKeypoints(sequence);
-      
       const tensor = tf.tensor3d([input], [1, SEQUENCE_LENGTH, FEATURES_PER_FRAME]);
-
       // 2. Realizar la predicción
       const result = model.predict(tensor);
       const predictionData = result.dataSync();
-      
       // 3. Obtener la predicción con mayor confianza
       const maxProbIndex = result.argMax(1).dataSync()[0];
       confidence = predictionData[maxProbIndex];
 
       if (confidence > 0.7) { // Umbral de confianza
         prediction = modelInfo.labels[maxProbIndex];
-        penecito = true ? " ":`{${predictionData}, ${result}}`
       }
     });
 
-    console.log(`Predicción: ${prediction} (Confianza: ${confidence.toFixed(2)})  ${penecito}`);
+    if (prediction !== "---") {
+      console.log(`🤖 Predicción: ${prediction} (Usuario: ${user.email}) (Confianza: ${confidence.toFixed(2)})`);
+      
+      // Guarda el gesto en el log del usuario
+      // (Esta función es 'upsert': actualiza si existe, o crea si no)
+      const today = new Date().toISOString().split('T')[0];
+      await GestureLog.findOneAndUpdate(
+        { user: user._id, label: prediction, date: today }, // Filtro
+        { $inc: { count: 1 }, $setOnInsert: { firstRecognized: new Date() } }, // Acción
+        { upsert: true, new: true } // Opciones
+      );
+    }
+
+    console.log(`Predicción: ${prediction} (Confianza: ${confidence.toFixed(2)})`);
     res.status(200).json({ prediction, confidence });
 
   } catch (err) {

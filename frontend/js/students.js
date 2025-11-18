@@ -1,64 +1,134 @@
-// Initialize students from localStorage
-const students = JSON.parse(localStorage.getItem("students")) || []
+import { getStudents, addStudent, updateStudent } from '../api/educator.service.js';
 
-// DOM elements
-const addStudentForm = document.getElementById("addStudentForm")
-const studentsList = document.getElementById("studentsList")
-const studentCount = document.getElementById("studentCount")
-const searchStudents = document.getElementById("searchStudents")
-const addStatus = document.getElementById("addStatus")
-const studentModal = document.getElementById("studentModal")
-const closeModal = document.getElementById("closeModal")
-const modalContent = document.getElementById("modalContent")
+// DOM Elements
+const addStudentForm = document.getElementById('addStudentForm');
+const studentEmail = document.getElementById('studentEmail');
+const vocabularyLevel = document.getElementById('vocabularyLevel');
+const studentsList = document.getElementById('studentsList');
+const studentCount = document.getElementById('studentCount');
+const statusMessage = document.getElementById('statusMessage');
 
-// Render students list
-function renderStudents(studentsToRender = students) {
-  studentCount.textContent = students.length
+let currentStudents = [];
 
-  if (studentsToRender.length === 0) {
-    studentsList.innerHTML = `
-      <div class="text-center py-12 text-gray-400">
-        <div class="text-6xl mb-3">👥</div>
-        <p class="font-medium text-lg">No hay alumnos registrados</p>
-        <p class="text-sm mt-1">Agrega tu primer alumno para comenzar</p>
-      </div>
-    `
-    return
+/**
+ * Muestra un mensaje de estado (éxito o error)
+ */
+function showStatus(message, isError = false) {
+  statusMessage.textContent = message;
+  statusMessage.classList.remove('hidden', 'text-green-600', 'text-red-600');
+  if (isError) {
+    statusMessage.classList.add('text-red-600');
+  } else {
+    statusMessage.classList.add('text-green-600');
   }
-
-  studentsList.innerHTML = studentsToRender
-    .map(
-      (student, index) => `
-    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4 flex-1">
-          <div class="w-12 h-12 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold text-lg">
-            ${student.name.charAt(0)}
-          </div>
-          <div class="flex-1">
-            <h4 class="font-bold text-gray-800 text-lg">${student.name}</h4>
-            <p class="text-sm text-gray-500">${student.email}</p>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-xs px-2 py-1 rounded-full ${getLevelColor(student.level)}">${getLevelText(student.level)}</span>
-              <span class="text-xs text-gray-500">${student.gesturesCount || 0} gestos</span>
-            </div>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="viewStudent(${index})" class="bg-secondary hover:bg-opacity-90 text-white px-4 py-2 rounded-lg text-sm font-medium">
-            Ver Detalles
-          </button>
-          <button onclick="deleteStudent(${index})" class="bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-lg text-sm font-medium">
-            Eliminar
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
-    )
-    .join("")
+  // Oculta el mensaje después de 3 segundos
+  setTimeout(() => {
+    statusMessage.classList.add('hidden');
+  }, 3000);
 }
 
+/**
+ * Renderiza la lista de alumnos en la tabla
+ */
+function renderStudents(students) {
+  currentStudents = students;
+  studentCount.textContent = students.length;
+  studentsList.innerHTML = ''; // Limpiar lista
+
+  if (students.length === 0) {
+    studentsList.innerHTML = `
+      <tr>
+        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+          No tienes alumnos asignados.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  students.forEach(student => {
+    const row = document.createElement('tr');
+    row.className = 'bg-white border-b';
+    row.innerHTML = `
+      <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+        ${student.username}
+      </th>
+      <td class="px-6 py-4">
+        ${student.email}
+      </td>
+      <td class="px-6 py-4">
+        <select data-id="${student._id}" class="level-select bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5">
+          <option value="basico" ${student.vocabularyLevel === 'basico' ? 'selected' : ''}>Básico</option>
+          <option value="intermedio" ${student.vocabularyLevel === 'intermedio' ? 'selected' : ''}>Intermedio</option>
+          <option value="avanzado" ${student.vocabularyLevel === 'avanzado' ? 'selected' : ''}>Avanzado</option>
+        </select>
+      </td>
+      <td class="px-6 py-4 text-right">
+        <a href="./reports.html?studentId=${student._id}" class="font-medium text-secondary hover:underline">Ver Reporte</a>
+      </td>
+    `;
+    studentsList.appendChild(row);
+  });
+}
+
+/**
+ * Carga la lista inicial de alumnos
+ */
+async function loadStudents() {
+  const result = await getStudents();
+  if (result.error) {
+    showStatus(`Error al cargar alumnos: ${result.error}`, true);
+  } else {
+    renderStudents(result);
+  }
+}
+
+/**
+ * Manejador para agregar un nuevo alumno
+ */
+addStudentForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = studentEmail.value;
+  const level = vocabularyLevel.value;
+
+  if (!email || !level) {
+    showStatus("Por favor, completa todos los campos.", true);
+    return;
+  }
+
+  const result = await addStudent(email, level);
+  
+  if (result.error) {
+    showStatus(`Error: ${result.error}`, true);
+  } else {
+    showStatus(`Alumno ${result.username} agregado exitosamente.`, false);
+    addStudentForm.reset();
+    loadStudents(); // Recargar la lista
+  }
+});
+
+/**
+ * Manejador para cambiar el nivel de un alumno (delegación de eventos)
+ */
+studentsList.addEventListener('change', async (e) => {
+  if (e.target.classList.contains('level-select')) {
+    const studentId = e.target.dataset.id;
+    const newLevel = e.target.value;
+    
+    const result = await updateStudent(studentId, newLevel);
+    if (result.error) {
+      showStatus(`Error al actualizar: ${result.error}`, true);
+      // Revertir el cambio visual
+      loadStudents();
+    } else {
+      showStatus(`Nivel de ${result.username} actualizado a ${result.vocabularyLevel}.`, false);
+    }
+  }
+});
+
+// Carga inicial
+loadStudents();
+/* 
 // Helper functions
 function getLevelColor(level) {
   const colors = {
@@ -211,4 +281,4 @@ function showStatus(type, message) {
 }
 
 // Initial render
-renderStudents()
+renderStudents() */

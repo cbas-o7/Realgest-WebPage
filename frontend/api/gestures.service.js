@@ -1,10 +1,15 @@
-const API_URL = `https://1h994dd7-3000.usw3.devtunnels.ms/api/gestures/`;
+const API_URL = `http://localhost:3000/api/gestures`;
+
+import { getAuthHeader } from "./stats.service.js";
 
 const predictSequence = async (sequence) => {
+  const headers = getAuthHeader();
+  if (!headers) return { error: "No autenticado" };
+
   try {
-    const response = await fetch(`${API_URL}predict`, {
+    const response = await fetch(`${API_URL}/predict`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify({ sequence }),
     });
 
@@ -19,10 +24,13 @@ const predictSequence = async (sequence) => {
 
 // Función para enviar una secuencia de gestos etiquetada al backend
 const collectSequence = async (label, sequence) => {
+  const headers = getAuthHeader();
+  if (!headers) return { error: "No autenticado" };
+
   try {
-    const response = await fetch(`${API_URL}collect`, {
+    const response = await fetch(`${API_URL}/collect`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify({ label, sequence }),
     });
 

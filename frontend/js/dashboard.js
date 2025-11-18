@@ -1,11 +1,36 @@
-// Logout button
+import { getDashboardStats } from "../api/stats.service.js";
+
 const logoutBtn = document.getElementById("logoutBtn")
+const wordsCountEl = document.getElementById("wordsCount");
+const timeUsageEl = document.getElementById("timeUsage");
+const userNameEl = document.getElementById("userName");
 
 logoutBtn.addEventListener("click", () => {
   const confirmLogout = confirm("¿Estás seguro de que deseas cerrar sesión?")
 
   if (confirmLogout) {
     // Redirect to landing page
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
     window.location.href = "../index.html"
   }
 })
+
+async function loadDashboard() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (userNameEl && user) {
+    userNameEl.textContent = user.username || "Usuario";
+  }
+
+  const result = await getDashboardStats();
+  if (result.error) {
+    console.error("Error al cargar stats:", result.error);
+    wordsCountEl.textContent = "N/A";
+    timeUsageEl.textContent = "N/A";
+  } else {
+    wordsCountEl.textContent = result.totalWords;
+    timeUsageEl.textContent = result.totalTime;
+  }
+}
+
+loadDashboard();

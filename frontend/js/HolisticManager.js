@@ -15,7 +15,7 @@ export default class HolisticManager {
     this.holistic.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
-      refineFaceLandmarks: true,
+      //refineFaceLandmarks: true,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
@@ -36,12 +36,12 @@ export default class HolisticManager {
       this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
       // Dibujo de landmarks (misma lógica anterior)
-      if (results.faceLandmarks) {
+      /* if (results.faceLandmarks) {
         drawConnectors(this.canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {
           color: "#C0C0C070",
           lineWidth: 1,
         });
-      }
+      } */
       if (results.poseLandmarks) {
         drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
           color: "#00FF00",
@@ -79,7 +79,7 @@ export default class HolisticManager {
     this.latestLandmarks = {
       timestamp: Date.now(),
       pose: results.poseLandmarks || [],
-      face: results.faceLandmarks || [],
+      //face: results.faceLandmarks || [],
       leftHand: results.leftHandLandmarks || [],
       rightHand: results.rightHandLandmarks || [],
     };

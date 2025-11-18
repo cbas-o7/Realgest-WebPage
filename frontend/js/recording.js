@@ -1,9 +1,10 @@
 import { predictSequence } from "../api/gestures.service.js";
+import { updateStats } from "../api/stats.service.js";
 import HolisticManager from "./HolisticManager.js";
 
-let latestLandmarks = null;
 
 let videoStream = null;
+let sessionWordCount = 0;
 let sessionStartTime = null;
 let sessionInterval = null;
 let gesturesDetected = 0;
@@ -66,6 +67,7 @@ const holisticManager = new HolisticManager({
             const result = await predictSequence(sequenceBuffer);
             if (result && result.prediction && result.prediction !== "---") {
               addTranslation(result.prediction);
+              sessionWordCount++;
             }
           }
           
@@ -76,7 +78,6 @@ const holisticManager = new HolisticManager({
       }
     }
     // Si no hay manos y no había antes, no hace nada.
-    // ----------------------------------------------
   },
 });
 
@@ -112,6 +113,7 @@ startCameraBtn.addEventListener("click", async () => {
 
     // Start session timer
     sessionStartTime = Date.now();
+    sessionWordCount = 0;
     sessionInterval = setInterval(updateSessionTime, 1000);
 
     // Simulate gesture detection (replace with actual AI model)
@@ -163,38 +165,6 @@ function updateSessionTime() {
       seconds
     ).padStart(2, "0")}`;
   }
-}
-
-// Simulate Gesture Detection (replace with actual AI model)
-function simulateGestureDetection() {
-  const sampleGestures = [
-    "Hola",
-    "Gracias",
-    "Por favor",
-    "Sí",
-    "No",
-    "Ayuda",
-    "Agua",
-    "Comida",
-  ];
-
-  const detectionInterval = setInterval(() => {
-    if (!videoStream) {
-      clearInterval(detectionInterval);
-      return;
-    }
-
-    // Randomly detect gestures
-    if (Math.random() > 0.7) {
-      const gesture =
-        sampleGestures[Math.floor(Math.random() * sampleGestures.length)];
-      addTranslation(gesture);
-      gesturesDetected++;
-      wordsTranslated++;
-      gesturesCount.textContent = gesturesDetected;
-      wordsCount.textContent = wordsTranslated;
-    }
-  }, 3000);
 }
 
 // Add Translation
@@ -249,9 +219,28 @@ clearTranslationBtn.addEventListener("click", () => {
   wordsCount.textContent = "0";
 });
 
+async function saveSessionStats() {
+  if (sessionStartTime === null) return; // No se inició sesión
+
+  // Calcula el tiempo transcurrido en segundos
+  const sessionEndTime = Date.now();
+  const timeElapsedInSeconds = Math.floor((sessionEndTime - sessionStartTime) / 1000);
+
+  // Solo guarda si hubo actividad
+  if (sessionWordCount > 0 || timeElapsedInSeconds > 10) {
+    console.log(`Guardando sesión: ${sessionWordCount} palabras, ${timeElapsedInSeconds} segundos.`);
+    await updateStats(sessionWordCount, timeElapsedInSeconds);
+  }
+
+  // Resetea para la próxima vez que se inicie la cámara
+  sessionStartTime = null;
+  sessionWordCount = 0;
+}
+
 // Cleanup on page unload
 window.addEventListener("beforeunload", () => {
   if (videoStream) {
     videoStream.getTracks().forEach((track) => track.stop());
   }
+  saveSessionStats();
 });

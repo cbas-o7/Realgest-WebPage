@@ -9,3 +9,7 @@ frontend/.DS_Store
 # Build outputs
 frontend/dist/
 frontend/build/
+
+#Model files
+backend/model/
+backend/data/

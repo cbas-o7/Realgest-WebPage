@@ -6,6 +6,19 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["usuario", "educador"], default: "usuario" },
+  
+  // Para el rol "usuario": a qué educador está asignado
+  educator: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    default: null 
+  },
+  // Nivel asignado por el educador
+  vocabularyLevel: { 
+    type: String, 
+    enum: ['basico', 'intermedio', 'avanzado'], 
+    default: 'basico' 
+  }
 }, { timestamps: true });
 
 // encripta la contraseña

@@ -19,6 +19,33 @@ const MODEL_SAVE_PATH = `file://${MODEL_DIR}`;
 const MODEL_INFO_PATH = path.join(MODEL_DIR, "model_info.json");
 const MODEL_PATH = path.join(MODEL_DIR, "model.json");
 
+class SaveBestModel extends tf.Callback {
+  constructor(savePath) {
+    super();
+    this.savePath = savePath;
+    this.bestValLoss = Infinity; // Empezamos con el peor error posible
+  }
+
+  async onEpochEnd(epoch, logs) {
+    if (logs.val_loss == null) {
+      // Pasa si no hay datos de validación
+      return;
+    }
+
+    // Comprueba si el error de validación actual es el mejor
+    if (logs.val_loss < this.bestValLoss) {
+      this.bestValLoss = logs.val_loss;
+      // ¡Es el mejor! Guarda el modelo
+      await this.model.save(this.savePath);
+      console.log(
+        `\nEpoch ${epoch + 1}: val_loss mejoró a ${this.bestValLoss.toFixed(
+          4
+        )}, guardando modelo en ${this.savePath}`
+      );
+    }
+  }
+}
+
 // --- Función Principal de Entrenamiento ---
 async function trainModel() {
   console.log("Iniciando entrenamiento con modelo LSTM...");
@@ -119,27 +146,15 @@ async function trainModel() {
   console.log("Entrenando...");
   await model.fit(X, y, {
     epochs: 100, 
-    batchSize: 16, 
+    batchSize: 8, 
     shuffle: true,
-    validationSplit: 0.2, 
+    validationSplit: 0.20, 
     callbacks: [earlyStopping, saveBestModel] 
   });
-  /* await model.fit(X, y, {
-    epochs: 100, // Aumenta esto si tienes más datos
-    batchSize: 8,
-    shuffle: true,
-    validationSplit: 0.2, // Usar 20% de los datos para validación
-    callbacks: tf.callbacks.earlyStopping({
-      monitor: "val_loss",
-      patience: 10, // Más paciencia antes de detenerse
-      saveBestOnly: true,
-      restoreBestWeights: true // ¡Guarda el mejor modelo!
-    }),
-  }); */
 
   // 5. Guardar Modelo y Etiquetas
-  await model.save(MODEL_SAVE_PATH);
-  fs.writeFileSync(MODEL_INFO_PATH, JSON.stringify({ labels: newLabels }));
+  //await model.save(MODEL_SAVE_PATH);
+  fs.writeFileSync(MODEL_INFO_PATH, JSON.stringify({ labels: newLabels })); 
 
   console.log(`* Modelo guardado en ${MODEL_SAVE_PATH}`);
   console.log(`* Etiquetas guardadas en ${MODEL_INFO_PATH}`);
@@ -156,14 +171,14 @@ function createLSTMModel(numClasses) {
     tf.layers.lstm({
       units: 64, // 64 neuronas de memoria
       inputShape: [SEQUENCE_LENGTH, FEATURES_PER_FRAME],
-      returnSequences: false, // Solo nos importa la salida del final
+      returnSequences: false, // Solo nos importa la salida del final   
     })
   );
-  model.add(tf.layers.dropout({ rate: 0.5 }));
+  //model.add(tf.layers.dropout({ rate: 0.3 }));
 
   // Capa Densa normal para clasificar
-  model.add(tf.layers.dense({ units: 32, activation: "relu" }));
-  model.add(tf.layers.dropout({ rate: 0.5 }));
+  model.add(tf.layers.dense({ units: 16, activation: "relu" }));
+  model.add(tf.layers.dropout({ rate: 0.3 }));
 
   // Capa de salida
   model.add(tf.layers.dense({ units: numClasses, activation: "softmax" }));
@@ -173,40 +188,3 @@ function createLSTMModel(numClasses) {
 
 // Ejecutar el entrenamiento
 trainModel().catch(console.error);
-
-
-
-
-
-
-
-
-
-
-
-class SaveBestModel extends tf.Callback {
-  constructor(savePath) {
-    super();
-    this.savePath = savePath;
-    this.bestValLoss = Infinity; // Empezamos con el peor error posible
-  }
-
-  async onEpochEnd(epoch, logs) {
-    if (logs.val_loss == null) {
-      // Pasa si no hay datos de validación
-      return;
-    }
-
-    // Comprueba si el error de validación actual es el mejor
-    if (logs.val_loss < this.bestValLoss) {
-      this.bestValLoss = logs.val_loss;
-      // ¡Es el mejor! Guarda el modelo
-      await this.model.save(this.savePath);
-      console.log(
-        `\nEpoch ${epoch + 1}: val_loss mejoró a ${this.bestValLoss.toFixed(
-          4
-        )}, guardando modelo en ${this.savePath}`
-      );
-    }
-  }
-}

@@ -1,4 +1,4 @@
-const API_URL = `https://1h994dd7-3000.usw3.devtunnels.ms/api/`;
+const API_URL = `http://localhost:3000/api/`;
 
 const register = async (newUser) => {
   try {

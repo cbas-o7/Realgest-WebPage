@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-gray-600">Bienvenido, <span
+                    <span class="text-gray-600">Bienvenido, <span id="userName"
                             class="font-semibold text-secondary">Usuario</span></span>
                     <button id="logoutBtn"
                         class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
@@ -84,56 +84,17 @@
 
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <p class="text-gray-600 text-sm mb-1">Palabras Traducidas</p>
-                <p class="text-3xl font-bold text-secondary">156</p>
+                <p id="wordsCount" class="text-3xl font-bold text-secondary">0</p>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <p class="text-gray-600 text-sm mb-1">Tiempo de Uso</p>
-                <p class="text-3xl font-bold text-primary">2.5h</p>
-            </div>
-        </div>
-
-        <!-- Recent Activity  -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-xl font-bold text-secondary mb-4">Actividad Reciente</h3>
-            <div class="space-y-4">
-                <div class="flex items-center gap-4 pb-4 border-b">
-                    <div
-                        class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold">
-                        G
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-800">Nuevo gesto registrado</p>
-                        <p class="text-sm text-gray-500">Hace 2 horas</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4 pb-4 border-b">
-                    <div
-                        class="w-10 h-10 bg-secondary bg-opacity-20 rounded-full flex items-center justify-center text-secondary font-bold">
-                        S
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-800">Sesión de comunicación completada</p>
-                        <p class="text-sm text-gray-500">Hace 5 horas</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <div
-                        class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary font-bold">
-                        V
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-800">Vocabulario actualizado</p>
-                        <p class="text-sm text-gray-500">Ayer</p>
-                    </div>
-                </div>
+                <p id="timeUsage" class="text-3xl font-bold text-primary">0h 0m</p>
             </div>
         </div>
     </main>
 
-    <script src="../js/dashboard.js"></script>
+    <script type="module" src="../js/dashboard.js"></script>
 </body>
 
 </html>

@@ -26,7 +26,8 @@ if (process.platform === 'win32' && process.env.PATH && !process.env.PATH.includ
 import * as tf from '@tensorflow/tfjs-node';
 import authRoutes from "./routes/auth.route.js";
 import gesturesRoutes from "./routes/gestures.route.js";
-
+import statsRoutes from "./routes/stats.route.js";
+import educatorRoutes from "./routes/educator.route.js";
 // ---------------------------------
 
 dotenv.config();
@@ -73,8 +74,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api", authRoutes);
-app.use("/api/gestures", gesturesRoutes);
+app.use("/api", authRoutes); // /api/login, /api/register
+app.use("/api/gestures", gesturesRoutes); // /api/gestures/collect, /api/gestures/predict
+app.use("/api/stats", statsRoutes); // /api/stats/update, /api/stats/dashboard
+app.use("/api/educator", educatorRoutes); // /api/educator/students, /api/educator/reports
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
