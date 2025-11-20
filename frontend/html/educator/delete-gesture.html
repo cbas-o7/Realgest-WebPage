@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Gestos - RealGest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#55c4bd',
+                        secondary: '#18416d'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="/images/whatsapp-20image-202025-09-22-20at-2019.jpeg" alt="RealGest Logo" class="h-12 w-12">
+                    <div>
+                        <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
+                        <p class="text-sm text-gray-600">Eliminar Gestos</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-secondary font-medium transition-colors">
+                        ← Volver al Dashboard
+                    </a>
+                    <button id="logoutBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Title Section -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-secondary mb-2">Gestionar Gestos</h2>
+            <p class="text-gray-600">Revisa y elimina gestos guardados del sistema</p>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <input 
+                        type="text" 
+                        id="searchGestures" 
+                        placeholder="Buscar gestos por nombre..."
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                    >
+                </div>
+                <div class="flex gap-2">
+                    <button id="sortByName" class="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">
+                        Ordenar A-Z
+                    </button>
+                    <button id="sortByDate" class="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">
+                        Ordenar por Fecha
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+                <p class="text-sm text-gray-600">
+                    Total de gestos: <span id="totalGestures" class="font-semibold text-secondary">0</span>
+                </p>
+                <button id="deleteAllBtn" class="text-red-500 hover:text-red-700 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Eliminar todos
+                </button>
+            </div>
+        </div>
+
+        <!-- Gestures List -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div id="gesturesList" class="space-y-3">
+                <div class="text-center py-16 text-gray-400">
+                    <div class="text-6xl mb-4">🗑️</div>
+                    <p class="text-lg font-medium">No hay gestos guardados</p>
+                    <p class="text-sm mt-2">Los gestos que se creen aparecerán aquí</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/delete-gesture.js"></script>
+</body>
+</html>

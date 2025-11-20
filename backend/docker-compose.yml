@@ -1,0 +1,35 @@
+services:
+  # 1. SERVICIO API (Tu servidor web)
+  api:
+    build: .
+    container_name: realgest-api
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app              # Monta tu código local en el contenedor
+      - /app/node_modules   # <--- ¡ESTA ES LA SOLUCIÓN! (Volumen anónimo)
+      - gest-data:/app/data   # Compartimos la carpeta data
+      - gest-model:/app/model # Compartimos la carpeta model
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    command: node server.js
+
+  # 2. SERVICIO ENTRENADOR (Solo se ejecuta cuando tú le digas)
+  trainer:
+    build: .
+    container_name: realgest-trainer
+    # No reiniciamos automáticamente, es un script de una sola vez
+    restart: "no" 
+    volumes:
+      - .:/app              # Monta tu código local en el contenedor
+      - /app/node_modules   # <--- ¡ESTA ES LA SOLUCIÓN! (Volumen anónimo)
+      - gest-data:/app/data   # Mismo volumen que la API
+      - gest-model:/app/model # Mismo volumen que la API
+    # Sobrescribimos el comando para que ejecute el entrenamiento
+    command: node train.js 
+
+# Definición de los volúmenes persistentes
+volumes:
+  gest-data:
+  gest-model:
