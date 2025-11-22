@@ -93,7 +93,7 @@ async function trainModel() {
 
   // 3. Definir o Cargar el Modelo
   let model;
-  if (fs.existsSync(MODEL_PATH)) {
+  if (/* false */fs.existsSync(MODEL_PATH)) {
     console.log("Cargando modelo LSTM existente...");
     const oldModel = await tf.loadLayersModel(`${MODEL_SAVE_PATH}/model.json`);
     const oldNumClasses =
@@ -169,12 +169,12 @@ function createLSTMModel(numClasses) {
   // inputShape: [pasos_de_tiempo, características] -> [30, 1662]
   model.add(
     tf.layers.lstm({
-      units: 64, // 64 neuronas de memoria
+      units: 32, // 64 neuronas de memoria
       inputShape: [SEQUENCE_LENGTH, FEATURES_PER_FRAME],
       returnSequences: false, // Solo nos importa la salida del final   
     })
   );
-  //model.add(tf.layers.dropout({ rate: 0.3 }));
+  model.add(tf.layers.dropout({ rate: 0.3 }));
 
   // Capa Densa normal para clasificar
   model.add(tf.layers.dense({ units: 16, activation: "relu" }));

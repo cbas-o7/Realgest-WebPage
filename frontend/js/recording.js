@@ -15,8 +15,8 @@ let detectedWords = [];
 let sequenceBuffer = [];
 let isHandVisible = false;
 let handTimeout = null;
-const GESTURE_TIMEOUT = 1500; // 500ms de espera antes de enviar
-const MIN_SEQUENCE_FRAMES = 30; // Mínimo 10 fotogramas para un gesto
+const GESTURE_TIMEOUT = 100; // 500ms de espera antes de enviar
+const MIN_SEQUENCE_FRAMES = 30; // Mínimo 30 fotogramas para un gesto
 
 // DOM Elements
 const videoElement = document.getElementById("videoElement");
@@ -174,9 +174,9 @@ function addTranslation(text) {
   }
   
   // No añadir la misma palabra dos veces seguidas
-  if (detectedWords[detectedWords.length - 1] === text) {
+  /* if (detectedWords[detectedWords.length - 1] === text) {
     return;
-  }
+  } */
 
   detectedWords.push(text);
 

@@ -28,6 +28,7 @@ import authRoutes from "./routes/auth.route.js";
 import gesturesRoutes from "./routes/gestures.route.js";
 import statsRoutes from "./routes/stats.route.js";
 import educatorRoutes from "./routes/educator.route.js";
+import adminRoutes from "./routes/admin.route.js";
 // ---------------------------------
 
 dotenv.config();
@@ -39,7 +40,7 @@ let modelInfo = null;
 export const MODEL_PATH = path.join(__dirname, "model/model.json");
 const INFO_PATH = path.join(__dirname, "model/model_info.json");
 
-async function loadModel() {
+export async function loadModel() {
   if (!fs.existsSync(MODEL_PATH) || !fs.existsSync(INFO_PATH)) {
     console.warn("ADVERTENCIA: No se encontró el modelo entrenado. Ejecuta 'node backend/train.js' primero.");
     return;
@@ -78,6 +79,7 @@ app.use("/api", authRoutes); // /api/login, /api/register
 app.use("/api/gestures", gesturesRoutes); // /api/gestures/collect, /api/gestures/predict
 app.use("/api/stats", statsRoutes); // /api/stats/update, /api/stats/dashboard
 app.use("/api/educator", educatorRoutes); // /api/educator/students, /api/educator/reports
+app.use("/api/admin", adminRoutes); // /
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

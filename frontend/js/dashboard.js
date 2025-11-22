@@ -4,6 +4,7 @@ const logoutBtn = document.getElementById("logoutBtn")
 const wordsCountEl = document.getElementById("wordsCount");
 const timeUsageEl = document.getElementById("timeUsage");
 const userNameEl = document.getElementById("userName");
+const gesturesEl = document.getElementById("gesturesRegistered");
 
 logoutBtn.addEventListener("click", () => {
   const confirmLogout = confirm("¿Estás seguro de que deseas cerrar sesión?")
@@ -27,9 +28,11 @@ async function loadDashboard() {
     console.error("Error al cargar stats:", result.error);
     wordsCountEl.textContent = "N/A";
     timeUsageEl.textContent = "N/A";
+    gesturesEl.textContent = "N/A";
   } else {
     wordsCountEl.textContent = result.totalWords;
     timeUsageEl.textContent = result.totalTime;
+    gesturesEl.textContent = result.totalGestures;
   }
 }
 

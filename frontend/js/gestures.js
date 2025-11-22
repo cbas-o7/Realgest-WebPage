@@ -1,4 +1,5 @@
 import { collectSequence } from "../api/gestures.service.js";
+import { train } from "../api/admin/train-and-reload.service.js";
 import HolisticManager from "./HolisticManager.js";
 
 let videoStream = null;
@@ -19,6 +20,7 @@ const gestureName = document.getElementById("gestureName");
 const captureGestureBtn = document.getElementById("captureGestureBtn");
 const saveGestureBtn = document.getElementById("saveGestureBtn"); // Botón para guardar gesto
 const captureStatus = document.getElementById("captureStatus");
+const trainModelBtn = document.getElementById("trainModelBtn");
 
 // ===================== MEDIAPIPE HOLISTIC =====================
 const canvasElement = document.getElementById("outputCanvas");
@@ -208,6 +210,42 @@ function showCaptureStatus(type, message) {
   }
 
   captureStatus.querySelector("p").textContent = message;
+}
+
+if (trainModelBtn) {
+  trainModelBtn.addEventListener("click", async () => {
+    const confirmTrain = confirm("¿Estás seguro? Esto iniciará el entrenamiento con todos los gestos guardados. Puede tardar unos minutos.");
+    
+    if (!confirmTrain) return;
+
+    // UI de carga
+    trainModelBtn.disabled = true;
+    trainModelBtn.innerHTML = `
+      <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Entrenando... (Por favor espera)
+    `;
+
+    try {
+      const response = await train();
+
+      const result = await response;
+
+      if (response.error === undefined) {
+        alert("✅ ¡Éxito! " + result.message);
+      } else {
+        alert("❌ Error: " + result.message);
+      }
+    } catch (error) {
+      alert("❌ Error de conexión: " + error.message);
+    } finally {
+      // Restaurar botón
+      trainModelBtn.disabled = false;
+      trainModelBtn.innerHTML = `<span>🧠</span> Entrenar y Actualizar Modelo`;
+    }
+  });
 }
 
 // Cleanup on page unload

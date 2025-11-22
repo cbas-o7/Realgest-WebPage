@@ -136,9 +136,13 @@ loginForm.addEventListener("submit", async (e) => {
     /// Guardar sesión en localStorage
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("user", JSON.stringify(result.user));
-    //if (result.token) localStorage.setItem("token", result.token);
+    
+    if (result.user.role === "educador") {
+      window.location.href = "html/educator/educator.html";
+    } else {
+      window.location.href = "html/dashboard.html";
+    }
 
-    window.location.href = "html/dashboard.html"; 
   }
 })
 
@@ -163,8 +167,12 @@ registerForm.addEventListener("submit", async (e) => {
     /// Guardar sesión en localStorage
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("user", JSON.stringify(result.user));
-    //if (result.token) localStorage.setItem("token", result.token);
-
-    window.location.href = "html/dashboard.html";
+    
+    if (result.user.role === "educador") {
+      window.location.href = "html/educator/educator.html";
+    } else {
+      window.location.href = "html/dashboard.html";
+    }
+    
   }
 })

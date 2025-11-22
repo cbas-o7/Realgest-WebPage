@@ -1,5 +1,6 @@
 import express from "express";
 import UsageStat from "../models/UsageStat.js";
+import GestureLog from "../models/GestureLog.js";
 import { getUser } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -51,7 +52,15 @@ router.get("/dashboard", getUser, async (req, res) => {
     const minutes = Math.floor((totalTime % 3600) / 60);
     const timeString = `${hours}h ${minutes}m`;
 
-    res.status(200).json({ totalWords, totalTime: timeString });
+    
+    const totalGesturesLogged = await GestureLog.countDocuments({ user: req.user._id });
+    console.log("Total Gestures Logged for user", req.user._id, ":", totalGesturesLogged);
+
+    res.status(200).json({ 
+      totalWords: stats.length ? stats[0].totalWords : 0, 
+      totalTime: stats.length ? timeString : "0h 0m", // Asegúrate de que timeString esté definido
+      totalGestures: totalGesturesLogged // <--- Enviamos este dato nuevo
+    });
 
   } catch (err) {
     res.status(500).json({ message: "Error al obtener estadísticas", error: err.message });

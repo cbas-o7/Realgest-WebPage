@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +19,7 @@
         }
     </script>
 </head>
+
 <body class="bg-gray-50">
     <!-- Header -->
     <header class="bg-white shadow-sm">
@@ -55,23 +57,27 @@
                     <h3 class="text-lg font-bold text-secondary mb-4">Vista de Cámara</h3>
                     <div class="relative bg-gray-900 rounded-lg overflow-hidden mb-4" style="aspect-ratio: 4/3;">
                         <video id="videoElement" autoplay playsinline class="w-full h-full object-cover"></video>
-                        <canvas id="outputCanvas" class="absolute top-0 left-0 w-full h-full" style="background: transparent;"></canvas>
+                        <canvas id="outputCanvas" class="absolute top-0 left-0 w-full h-full"
+                            style="background: transparent;"></canvas>
 
 
                         <!-- Camera Status Indicator -->
-                        <div id="cameraStatus" class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                        <div id="cameraStatus"
+                            class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
                             <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                             Cámara Inactiva
                         </div>
 
                         <!-- Recording Indicator -->
-                        <div id="recordingIndicator" class="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium hidden flex items-center gap-2">
+                        <div id="recordingIndicator"
+                            class="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium hidden flex items-center gap-2">
                             <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                             Grabando
                         </div>
 
                         <!-- No Camera Message -->
-                        <div id="noCameraMessage" class="absolute inset-0 flex items-center justify-center text-white text-center p-8">
+                        <div id="noCameraMessage"
+                            class="absolute inset-0 flex items-center justify-center text-white text-center p-8">
                             <div>
                                 <div class="text-6xl mb-4">🎥</div>
                                 <p class="text-xl font-semibold mb-2">Cámara no iniciada</p>
@@ -82,11 +88,13 @@
 
                     <!-- Camera Controls -->
                     <div class="flex gap-3 justify-center">
-                        <button id="startCameraBtn" class="bg-primary hover:bg-opacity-90 text-white px-5 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                        <button id="startCameraBtn"
+                            class="bg-primary hover:bg-opacity-90 text-white px-5 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
                             <span class="text-lg">▶</span>
                             Iniciar Cámara
                         </button>
-                        <button id="stopCameraBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
+                        <button id="stopCameraBtn"
+                            class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
                             <span class="text-lg">⏹</span>
                             Detener
                         </button>
@@ -99,31 +107,21 @@
                     <form id="gestureForm" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Gesto *</label>
-                            <input 
-                                type="text" 
-                                id="gestureName" 
-                                required 
-                                placeholder="Ej: Hola, Gracias, Ayuda..."
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            >
-                            <p class="text-xs text-gray-500 mt-1">Ingresa el significado del gesto que deseas registrar</p>
+                            <input type="text" id="gestureName" required placeholder="Ej: Hola, Gracias, Ayuda..."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                            <p class="text-xs text-gray-500 mt-1">Ingresa el significado del gesto que deseas registrar
+                            </p>
                         </div>
 
                         <div class="flex gap-3">
-                            <button 
-                                type="button" 
-                                id="captureGestureBtn" 
+                            <button type="button" id="captureGestureBtn"
                                 class="flex-1 bg-secondary hover:bg-opacity-90 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                                disabled
-                            >
+                                disabled>
                                 📸 Capturar Gesto
                             </button>
-                            <button 
-                                type="submit" 
-                                id="saveGestureBtn"
+                            <button type="submit" id="saveGestureBtn"
                                 class="flex-1 bg-primary hover:bg-opacity-90 text-white py-3 rounded-lg font-semibold transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                                disabled
-                            >
+                                disabled>
                                 💾 Guardar Gesto
                             </button>
                         </div>
@@ -134,6 +132,17 @@
                         <p class="text-sm font-medium"></p>
                     </div>
                 </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-bold text-secondary mb-2">Gestión del Modelo</h3>
+                    <p class="text-sm text-gray-500 mb-4">Entrena el modelo con los nuevos gestos capturados para que
+                        sean reconocibles.</p>
+                    <button id="trainModelBtn"
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold shadow-lg transition-colors flex items-center justify-center gap-2">
+                        <span>🧠</span> Entrenar y Actualizar Modelo
+                    </button>
+                </div>
+                
             </div>
 
             <!-- Right Column: Saved Gestures List -->
@@ -174,4 +183,5 @@
 
     <script type="module" src="../../js/gestures.js"></script>
 </body>
+
 </html>

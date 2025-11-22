@@ -173,12 +173,14 @@ router.get("/dashboard-stats", async (req, res) => {
     // 1. Contar alumnos
     const studentCount = await User.countDocuments({ educator: educatorId });
 
-    // 2. Leer el archivo JSON para contar gestos
-    let gestureCount = 0;
-    if (fs.existsSync(DATA_PATH)) {
-      const fileData = fs.readFileSync(DATA_PATH, "utf8");
-      gestureCount = JSON.parse(fileData).length;
-    }
+    // 2. Contar Gestos Registrados en BD (GestureLog)
+    // Obtenemos los IDs de mis alumnos
+    const myStudents = await User.find({ educator: educatorId }, '_id');
+
+    // Buscamos en el log cuántos registros hay de estos alumnos
+    const gestureCount = await GestureLog.countDocuments({ 
+      user: { $in: myStudents } 
+    });
 
     // 3. Obtener alumnos recientes (los 3 últimos asignados)
     const recentStudents = await User.find(
@@ -199,27 +201,5 @@ router.get("/dashboard-stats", async (req, res) => {
     res.status(500).json({ message: "Error al cargar estadísticas del dashboard", error: err.message });
   }
 });
-
-router.post("/admin/reload-model", async (req, res) => {
-  console.log("🔄 Solicitud de recarga de modelo recibida...");
-  try {
-    // Limpiamos la memoria del modelo anterior si existe
-    if (req.model) {
-      req.model.dispose();
-    }
-    
-    // Volvemos a cargar desde el disco (que ya tiene el archivo nuevo gracias al trainer)
-    await loadModel(); 
-    
-    // Actualizamos las referencias en el request (para middleware)
-    // Nota: Como loadModel actualiza las variables globales 'model' y 'modelInfo',
-    // las siguientes peticiones usarán el nuevo automáticamente.
-    
-    res.status(200).json({ message: "Modelo recargado exitosamente" });
-  } catch (error) {
-    res.status(500).json({ message: "Error al recargar modelo", error: error.message });
-  }
-});
-
 
 export default router;
