@@ -58,7 +58,6 @@ router.post("/collect", async (req, res) => {
   }
 });
 
-// Registro
 router.post("/predict", getUser, async (req, res) => {
   const { model, modelInfo, user } = req; // Obtener modelo cargado desde server.js
   const { sequence } = req.body;
@@ -109,6 +108,67 @@ router.post("/predict", getUser, async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error en el servidor", error: err.message });
+  }
+});
+
+router.get("/list", async (req, res) => {
+  try {
+    if (!fs.existsSync(DATA_PATH)) {
+        return res.status(200).json([]);
+    }
+    const fileData = fs.readFileSync(DATA_PATH, "utf8");
+    const data = JSON.parse(fileData);
+    
+    // Agrupar por etiqueta y contar muestras
+    const summary = data.reduce((acc, curr) => {
+        acc[curr.label] = (acc[curr.label] || 0) + 1;
+        return acc;
+    }, {});
+
+    const gestureList = Object.keys(summary).map(label => ({
+        label,
+        samples: summary[label]
+    }));
+
+    res.status(200).json(gestureList);
+  } catch (err) {
+    res.status(500).json({ message: "Error al listar gestos", error: err.message });
+  }
+});
+
+router.delete("/delete", async (req, res) => {
+  const { label } = req.body;
+  
+  if (!label) return res.status(400).json({ message: "Falta la etiqueta (label)" });
+
+  try {
+    // A. Eliminar del JSON (Dataset de entrenamiento)
+    let deletedCount = 0;
+    if (fs.existsSync(DATA_PATH)) {
+        const fileData = fs.readFileSync(DATA_PATH, "utf8");
+        let data = JSON.parse(fileData);
+        
+        const initialLength = data.length;
+        data = data.filter(item => item.label !== label); // Filtra el gesto
+        deletedCount = initialLength - data.length;
+
+        fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+    }
+
+    // B. Eliminar registros históricos de Mongo (Opcional, pero solicitado)
+    const mongoResult = await GestureLog.deleteMany({ label: label });
+
+    res.status(200).json({ 
+        ok: true,
+        message: `Gesto "${label}" eliminado.`, 
+        details: {
+            datasetSamplesRemoved: deletedCount,
+            mongoLogsRemoved: mongoResult.deletedCount
+        }
+    });
+
+  } catch (err) {
+    res.status(500).json({ ok:false, message: "Error al eliminar gesto", error: err.message });
   }
 });
 

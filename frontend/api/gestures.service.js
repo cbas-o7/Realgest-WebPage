@@ -43,4 +43,43 @@ const collectSequence = async (label, sequence) => {
   }
 };
 
-export { predictSequence, collectSequence }; 
+const listGesture = async () => {
+  const headers = getAuthHeader();
+  if (!headers) return { error: "No autenticado" };
+
+  try {
+    const response = await fetch(`${API_URL}/list`, {
+      method: "GET",
+      headers: headers,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) throw new Error(result.message);
+    return result;
+  } catch (error) {
+    return { error: error.message || "Error en la solicitud" };
+  }
+};
+
+const deleteGestureDB = async (label) => {
+  const headers = getAuthHeader();
+  if (!headers) return { error: "No autenticado" };
+
+  try {
+    const response = await fetch(`${API_URL}/delete`, {
+      method: "DELETE",
+      headers: headers,
+      body: JSON.stringify({ label }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) throw new Error(result.message);
+    return result;
+  } catch (error) {
+    return { error: error.message || "Error en la solicitud" };
+  }
+};
+
+export { predictSequence, collectSequence, listGesture, deleteGestureDB }; 

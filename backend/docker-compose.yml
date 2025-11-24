@@ -8,9 +8,7 @@ services:
       - "3000:3000"
     volumes:
       - .:/app              # Monta tu código local en el contenedor
-      - /app/node_modules   # <--- ¡ESTA ES LA SOLUCIÓN! (Volumen anónimo)
-      - gest-data:/app/data   # Compartimos la carpeta data
-      - gest-model:/app/model # Compartimos la carpeta model
+      - /app/node_modules   # <--- (Volumen anónimo)
     environment:
       - MONGO_URI=${MONGO_URI}
     command: node server.js
@@ -23,9 +21,7 @@ services:
     restart: "no" 
     volumes:
       - .:/app              # Monta tu código local en el contenedor
-      - /app/node_modules   # <--- ¡ESTA ES LA SOLUCIÓN! (Volumen anónimo)
-      - gest-data:/app/data   # Mismo volumen que la API
-      - gest-model:/app/model # Mismo volumen que la API
+      - /app/node_modules   # <--- (Volumen anónimo)
     # Sobrescribimos el comando para que ejecute el entrenamiento
     command: node train.js 
 

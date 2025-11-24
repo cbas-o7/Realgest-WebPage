@@ -233,11 +233,27 @@ if (trainModelBtn) {
 
       const result = await response;
 
-      if (response.error === undefined) {
-        alert("✅ ¡Éxito! " + result.message);
+      if (response.ok && result.ok) { // Verificar result.ok
+        let msg = "✅ ¡Modelo re-entrenado exitosamente!";
+        
+        // VERIFICACIÓN DE CALIDAD
+        if (result.stats && result.stats.accuracy < 0.99) { // Umbral del 99% o 1.0
+            msg += `\n\n⚠️ ADVERTENCIA: La precisión del modelo es baja (${(result.stats.accuracy * 100).toFixed(1)}%).\n\n` +
+                   "La calidad o cantidad de las muestras podría no ser suficiente. " +
+                   "Se recomienda grabar más ejemplos (30-40 por gesto) para evitar errores en las predicciones.";
+        }
+        
+        alert(msg);
       } else {
         alert("❌ Error: " + result.message);
       }
+
+
+      /* if (response.error === undefined) {
+        alert("✅ ¡Éxito! " + result.message);
+      } else {
+        alert("❌ Error: " + result.message);
+      } */
     } catch (error) {
       alert("❌ Error de conexión: " + error.message);
     } finally {

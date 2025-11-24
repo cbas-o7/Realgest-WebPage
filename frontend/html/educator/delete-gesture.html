@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliminar Gestos - RealGest</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../../js/tailwind.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -24,14 +24,14 @@
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img src="/images/whatsapp-20image-202025-09-22-20at-2019.jpeg" alt="RealGest Logo" class="h-12 w-12">
+                    <img src="../../static/realgest.png" alt="RealGest Logo" class="h-12 w-12">
                     <div>
                         <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
                         <p class="text-sm text-gray-600">Eliminar Gestos</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <a href="dashboard.html" class="text-gray-600 hover:text-secondary font-medium transition-colors">
+                    <a href="./educator.html" class="text-gray-600 hover:text-secondary font-medium transition-colors">
                         ← Volver al Dashboard
                     </a>
                     <button id="logoutBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
@@ -48,6 +48,7 @@
         <div class="mb-8">
             <h2 class="text-3xl font-bold text-secondary mb-2">Gestionar Gestos</h2>
             <p class="text-gray-600">Revisa y elimina gestos guardados del sistema</p>
+            <div id="statusMessage" class="hidden p-4 mb-4 rounded-lg"></div>
         </div>
 
         <!-- Search and Filter Section -->
@@ -56,7 +57,7 @@
                 <div class="flex-1">
                     <input 
                         type="text" 
-                        id="searchGestures" 
+                        id="searchGesture" 
                         placeholder="Buscar gestos por nombre..."
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                     >
@@ -65,23 +66,17 @@
                     <button id="sortByName" class="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">
                         Ordenar A-Z
                     </button>
-                    <button id="sortByDate" class="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">
-                        Ordenar por Fecha
-                    </button>
                 </div>
             </div>
             <div class="mt-4 flex items-center justify-between">
                 <p class="text-sm text-gray-600">
                     Total de gestos: <span id="totalGestures" class="font-semibold text-secondary">0</span>
                 </p>
-                <button id="deleteAllBtn" class="text-red-500 hover:text-red-700 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Eliminar todos
-                </button>
             </div>
         </div>
 
         <!-- Gestures List -->
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- <div class="bg-white rounded-lg shadow-md p-6">
             <div id="gesturesList" class="space-y-3">
                 <div class="text-center py-16 text-gray-400">
                     <div class="text-6xl mb-4">🗑️</div>
@@ -89,9 +84,28 @@
                     <p class="text-sm mt-2">Los gestos que se creen aparecerán aquí</p>
                 </div>
             </div>
+        </div> -->
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gesto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Muestras de Entrenamiento</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="gesturesTableBody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+            </table>
         </div>
+        
+        <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700">
+            <strong>Nota:</strong> Al eliminar un gesto, se borrarán sus muestras de entrenamiento y su historial de uso. Deberás re-entrenar el modelo para que los cambios surtan efecto.
+        </div>
+
     </main>
 
-    <script src="../../js/delete-gesture.js"></script>
+    <script type="module" src="../../js/delete-gesture.js"></script>
 </body>
 </html>
