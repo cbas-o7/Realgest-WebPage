@@ -2,6 +2,13 @@ import express from "express";
 import UsageStat from "../models/UsageStat.js";
 import GestureLog from "../models/GestureLog.js";
 import { getUser } from "../middleware/auth.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const MODEL_INFO_PATH = path.join(__dirname, "../model/model_info.json");
 
 const router = express.Router();
 
@@ -53,13 +60,16 @@ router.get("/dashboard", getUser, async (req, res) => {
     const timeString = `${hours}h ${minutes}m`;
 
     
-    const totalGesturesLogged = await GestureLog.countDocuments({ user: req.user._id });
-    console.log("Total Gestures Logged for user", req.user._id, ":", totalGesturesLogged);
+    let totalGesturesAvailable = 0;
+    if (fs.existsSync(MODEL_INFO_PATH)) {
+        const info = JSON.parse(fs.readFileSync(MODEL_INFO_PATH, "utf8"));
+        totalGesturesAvailable = info.labels ? info.labels.length : 0;
+    }
 
     res.status(200).json({ 
       totalWords: stats.length ? stats[0].totalWords : 0, 
       totalTime: stats.length ? timeString : "0h 0m", // Asegúrate de que timeString esté definido
-      totalGestures: totalGesturesLogged // <--- Enviamos este dato nuevo
+      totalGestures: totalGesturesAvailable // <--- Enviamos este dato nuevo
     });
 
   } catch (err) {

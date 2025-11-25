@@ -10,6 +10,7 @@ import { fileURLToPath } from "url"; // <-- AÑADE fileURLToPath
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const MODEL_INFO_PATH = path.join(__dirname, "../model/model_info.json");
 const DATA_PATH = path.join(__dirname, "../data/gestures.json");
 
 const router = express.Router();
@@ -159,7 +160,31 @@ router.get("/reports", async (req, res) => {
       }}
     ]);
 
-    res.status(200).json({ stats, gestures });
+    // 6. NUEVO: Query de "Gestos Aprendidos" (Primera vez vistos en este periodo)
+    // Buscamos registros donde 'firstRecognized' esté dentro del rango de fechas
+    const learnedGestures = await GestureLog.aggregate([
+      { $match: studentFilter },
+      { $match: { 
+          firstRecognized: { 
+             $gte: dateFilter.$gte ? new Date(dateFilter.$gte) : new Date("2000-01-01"),
+             $lte: dateFilter.$lte ? new Date(dateFilter.$lte + "T23:59:59") : new Date()
+          } 
+      }},
+      {
+        $lookup: { from: "users", localField: "user", foreignField: "_id", as: "userDetails" }
+      },
+      { $unwind: "$userDetails" },
+      { $project: {
+          _id: 0,
+          label: 1,
+          firstRecognized: 1,
+          username: "$userDetails.username"
+      }},
+      { $sort: { firstRecognized: -1 } } // Los más recientes primero
+    ]);
+    
+
+    res.status(200).json({ stats, gestures, learnedGestures });
 
   } catch (err) {
     res.status(500).json({ message: "Error al generar reporte", error: err.message });
@@ -178,9 +203,11 @@ router.get("/dashboard-stats", async (req, res) => {
     const myStudents = await User.find({ educator: educatorId }, '_id');
 
     // Buscamos en el log cuántos registros hay de estos alumnos
-    const gestureCount = await GestureLog.countDocuments({ 
-      user: { $in: myStudents } 
-    });
+    let gestureCount = 0;
+    if (fs.existsSync(MODEL_INFO_PATH)) {
+      const info = JSON.parse(fs.readFileSync(MODEL_INFO_PATH, "utf8"));
+      gestureCount = info.labels ? info.labels.length : 0;
+    }
 
     // 3. Obtener alumnos recientes (los 3 últimos asignados)
     const recentStudents = await User.find(

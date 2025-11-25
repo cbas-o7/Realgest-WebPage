@@ -142,7 +142,7 @@ async function trainModel() {
       console.log("✅ Transferencia de pesos completada.");
     } catch (err) {
       console.warn(
-        "⚠️ No se pudieron transferir los pesos antiguos. Se entrenará desde cero."
+        " No se pudieron transferir los pesos antiguos. Se entrenará desde cero."
       );
       console.warn("Error:", err.message);
       // El script continúa con el modelo nuevo "en blanco", no se detiene.
@@ -179,21 +179,28 @@ async function trainModel() {
   fs.writeFileSync(MODEL_INFO_PATH, JSON.stringify({ labels: newLabels }));
 
   // Guardar estadísticas finales
-      const finalValAcc = history.history.val_acc
-        ? history.history.val_acc[history.history.val_acc.length - 1]
-        : 0;
 
-      const stats = {
-        accuracy: finalValAcc,
-        timestamp: new Date().toISOString(),
-        samples: data.length,
-        classes: numClasses,
-      };
-      fs.writeFileSync(STATS_PATH, JSON.stringify(stats));
+  const valLosses = history.history.val_loss;
+  const bestEpochIndex = valLosses.indexOf(Math.min(...valLosses));
 
-  console.log(`✅ Entrenamiento completado. Modelo guardado.`);
+  // Recuperamos las métricas de ESE índice específico
+  const bestValAcc = history.history.val_acc[bestEpochIndex];
+  const bestLoss = valLosses[bestEpochIndex];
+
+  const stats = {
+    accuracy: bestValAcc,
+    loss: bestLoss,
+    bestEpoch: bestEpochIndex + 1, // +1 porque los índices empiezan en 0
+    timestamp: new Date().toISOString(),
+    samples: data.length,
+    classes: numClasses,
+  };
+
+  fs.writeFileSync(STATS_PATH, JSON.stringify(stats));
+
+  console.log(`✅ Entrenamiento completado.`);
+  console.log(`📊 Mejores estadísticas (Epoch ${stats.bestEpoch}): val_acc = ${bestValAcc.toFixed(4)}`);
   console.log(`✅ Etiquetas guardadas en ${MODEL_INFO_PATH}`);
-  console.log(`📊 Estadísticas guardadas: val_acc = ${finalValAcc.toFixed(4)}`);
 }
 
 // Ejecutar el entrenamiento
