@@ -11,5 +11,5 @@ frontend/dist/
 frontend/build/
 
 #Model files
-backend/model/
+#backend/model/
 backend/data/

@@ -81,12 +81,14 @@ app.use("/api/stats", statsRoutes); // /api/stats/update, /api/stats/dashboard
 app.use("/api/educator", educatorRoutes); // /api/educator/students, /api/educator/reports
 app.use("/api/admin", adminRoutes); // /
 
+const PORT = process.env.PORT || 3000;
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB conectado");
     // Iniciar el servidor DESPUÉS de cargar el modelo
     loadModel().then(() => {
-      app.listen(3000, () => console.log("Servidor en http://localhost:3000 "));
+      app.listen(PORT, '0.0.0.0', () => console.log("Servidor en http://localhost:3000 "));
     });
   })
   .catch(err => console.error("Error de conexión:", err));
