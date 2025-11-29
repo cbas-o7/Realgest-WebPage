@@ -1,4 +1,4 @@
-import { getDashboardStats } from "../api/stats.service.js";
+import { getDashboardStats } from "../service/stats.service.js";
 
 const logoutBtn = document.getElementById("logoutBtn")
 const wordsCountEl = document.getElementById("wordsCount");

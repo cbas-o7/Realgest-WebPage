@@ -1,6 +1,6 @@
 import { getAuthHeader } from "./stats.service.js"; 
 
-const API_URL = `http://localhost:3000/api/educator`;
+const API_URL = process.env.API_URL || `http://localhost:3000/api`;
 
 /**
  * Obtiene datos para el dashboard del educador.
@@ -10,7 +10,7 @@ const getEducatorDashboardStats = async () => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/dashboard-stats`, {
+    const response = await fetch(`${API_URL}/educator/dashboard-stats`, {
       method: "GET",
       headers: headers,
     });
@@ -30,7 +30,7 @@ const getStudents = async () => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/students`, {
+    const response = await fetch(`${API_URL}/educator/students`, {
       method: "GET",
       headers: headers,
     });
@@ -50,7 +50,7 @@ const addStudent = async (email, vocabularyLevel) => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/add-student`, {
+    const response = await fetch(`${API_URL}/educator/add-student`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({ email, vocabularyLevel }),
@@ -71,7 +71,7 @@ const updateStudent = async (studentId, vocabularyLevel) => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/student/${studentId}`, {
+    const response = await fetch(`${API_URL}/educator/student/${studentId}`, {
       method: "PUT",
       headers: headers,
       body: JSON.stringify({ vocabularyLevel }),
@@ -99,7 +99,7 @@ const getReportData = async (filters) => {
   if (filters.dateTo) params.append('dateTo', filters.dateTo);
 
   try {
-    const response = await fetch(`${API_URL}/reports?${params.toString()}`, {
+    const response = await fetch(`${API_URL}/educator/reports?${params.toString()}`, {
       method: "GET",
       headers: headers,
     });

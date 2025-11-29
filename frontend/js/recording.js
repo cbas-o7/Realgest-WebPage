@@ -1,5 +1,5 @@
-import { predictSequence } from "../api/gestures.service.js";
-import { updateStats } from "../api/stats.service.js";
+import { predictSequence } from "../service/gestures.service.js";
+import { updateStats } from "../service/stats.service.js";
 import HolisticManager from "./HolisticManager.js";
 
 

@@ -6,6 +6,101 @@ const iotStatus = document.getElementById("iotStatus")
 
 let iotConnected = false
 
+let port;
+let writer;
+
+async function connectArduino() {
+  try {
+    // Solicita al usuario que seleccione un puerto
+    port = await navigator.serial.requestPort();
+    
+    // Abre el puerto (9600 es la velocidad estándar de Arduino)
+    await port.open({ baudRate: 9600 });
+
+    // Configura el escritor para enviar texto
+    const textEncoder = new TextEncoderStream();
+    const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+    writer = textEncoder.writable.getWriter();
+
+    // Actualizar UI
+    const btn = document.getElementById('connectArduinoBtn');
+    if (btn) {
+        btn.textContent = "✅ Arduino Conectado";
+        btn.classList.remove("bg-gray-800", "hover:bg-gray-900");
+        btn.classList.add("bg-green-600", "hover:bg-green-700");
+        btn.disabled = true;
+    }
+    
+    alert("Conexión exitosa con el dispositivo.");
+
+  } catch (error) {
+    console.error("Error al conectar:", error);
+    alert("No se pudo conectar al Arduino. Asegúrate de usar Chrome/Edge y tener el dispositivo conectado.");
+  }
+}
+
+// 2. Función para enviar datos al Arduino
+async function sendToArduino(text) {
+  if (!writer) {
+    console.warn("Arduino no conectado. Saltando envío serial.");
+    return;
+  }
+
+  try {
+    // Enviamos el texto seguido de un salto de línea (\n) para que el Arduino sepa que terminó el mensaje
+    await writer.write(text + "\n");
+    console.log(`📡 Enviado a Arduino: ${text}`);
+  } catch (error) {
+    console.error("Error escribiendo en serial:", error);
+    alert("Error de comunicación. Intenta reconectar.");
+    writer = null; // Resetear para forzar reconexión
+  }
+}
+
+// 3. Función de voz (TTS) existente
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-ES";
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// 4. Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Botón de conectar
+    const connectBtn = document.getElementById('connectArduinoBtn');
+    if (connectBtn) {
+        connectBtn.addEventListener('click', connectArduino);
+    }
+
+    // Tarjetas de gestos
+    const cards = document.querySelectorAll('.gesture-card'); // Asegúrate que tus tarjetas tengan esta clase o la que uses
+    // Si usas otro selector en tu HTML, ajústalo aquí. Por ejemplo, si son <div> directos:
+    // const cards = document.querySelectorAll('main > div.grid > div'); 
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Obtenemos el texto del gesto (asumiendo que está en un <p> o <h3> dentro de la card)
+            const text = card.getAttribute("data-text"); 
+            //const text = textElement ? textElement.innerText.trim() : "Gesto";
+
+            // A. Reproducir audio en el navegador
+            speak(text);
+
+            // B. Enviar comando al Arduino (para que actúe como bocina/display)
+            sendToArduino(text);
+        });
+    });
+});
+
+
+
+
+
+
+
 iotToggle.addEventListener("click", () => {
   iotConnected = !iotConnected
 

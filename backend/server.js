@@ -88,7 +88,7 @@ mongoose.connect(process.env.MONGO_URI)
     console.log("MongoDB conectado");
     // Iniciar el servidor DESPUÉS de cargar el modelo
     loadModel().then(() => {
-      app.listen(PORT, '0.0.0.0', () => console.log("Servidor en http://localhost:3000 "));
+      app.listen(PORT, '0.0.0.0', () => console.log(`Servidor escuchando en el puerto ${PORT}`));
     });
   })
   .catch(err => console.error("Error de conexión:", err));

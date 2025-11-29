@@ -1,5 +1,5 @@
-import { collectSequence } from "../api/gestures.service.js";
-import { train } from "../api/admin/train-and-reload.service.js";
+import { collectSequence } from "../service/gestures.service.js";
+import { train } from "../service/admin/train-and-reload.service.js";
 import HolisticManager from "./HolisticManager.js";
 
 let videoStream = null;

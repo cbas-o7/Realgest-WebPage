@@ -1,4 +1,4 @@
-import { getEducatorDashboardStats } from '../api/educator.service.js';
+import { getEducatorDashboardStats } from '../service/educator.service.js';
 
 // DOM Elements
 const logoutBtn = document.getElementById('logoutBtn');

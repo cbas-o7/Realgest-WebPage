@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +19,7 @@
         }
     </script>
 </head>
+
 <body class="bg-gray-50">
     <!-- Header -->
     <header class="bg-white shadow-sm">
@@ -52,11 +54,23 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-xl font-bold text-secondary mb-1">Dispositivo IoT</h3>
-                    <p class="text-sm text-gray-600">Conectar dispositivo externo para gestos</p>
+                    <p class="text-sm text-gray-600">Conecta tu Arduino para sincronizar audio</p>
                 </div>
-                <button id="iotToggle" class="relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-gray-300">
-                    <span id="iotToggleCircle" class="inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform translate-x-1"></span>
+
+
+
+                <button id="connectArduinoBtn"
+                    class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <span>🔌</span> Conectar Arduino
                 </button>
+                <button id="iotToggle"
+                    class="relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-gray-300">
+                    <span id="iotToggleCircle"
+                        class="inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform translate-x-1"></span>
+                </button>
+
+
+
             </div>
             <div id="iotStatus" class="mt-4 hidden">
                 <div class="flex items-center gap-2 text-sm">
@@ -74,62 +88,86 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Hola">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Hola">
                     <div class="text-4xl mb-2">👋</div>
                     <p class="font-semibold text-gray-800">Hola</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Gracias">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Gracias">
                     <div class="text-4xl mb-2">🙏</div>
                     <p class="font-semibold text-gray-800">Gracias</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Por favor">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Por favor">
                     <div class="text-4xl mb-2">🙌</div>
                     <p class="font-semibold text-gray-800">Por favor</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Sí">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Sí">
                     <div class="text-4xl mb-2">👍</div>
                     <p class="font-semibold text-gray-800">Sí</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="No">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="No">
                     <div class="text-4xl mb-2">👎</div>
                     <p class="font-semibold text-gray-800">No</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Agua">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Agua">
                     <div class="text-4xl mb-2">💧</div>
                     <p class="font-semibold text-gray-800">Agua</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Comida">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Comida">
                     <div class="text-4xl mb-2">🍽️</div>
                     <p class="font-semibold text-gray-800">Comida</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Baño">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Baño">
                     <div class="text-4xl mb-2">🚻</div>
                     <p class="font-semibold text-gray-800">Baño</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Descanso">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Descanso">
                     <div class="text-4xl mb-2">😴</div>
                     <p class="font-semibold text-gray-800">Descanso</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Feliz">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Feliz">
                     <div class="text-4xl mb-2">😊</div>
                     <p class="font-semibold text-gray-800">Feliz</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Triste">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Triste">
                     <div class="text-4xl mb-2">😢</div>
                     <p class="font-semibold text-gray-800">Triste</p>
                 </button>
 
-                <button class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary" data-text="Me gusta">
+                <button
+                    class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
+                    data-text="Me gusta">
                     <div class="text-4xl mb-2">❤️</div>
                     <p class="font-semibold text-gray-800">Me gusta</p>
                 </button>
@@ -144,32 +182,44 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Ayuda urgente">
+                <button
+                    class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600 gesture-card"
+                    data-text="Ayuda urgente">
                     <div class="text-4xl mb-2">🆘</div>
                     <p class="font-semibold text-red-800">Ayuda</p>
                 </button>
 
-                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Dolor">
+                <button
+                    class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600 gesture-card"
+                    data-text="Dolor">
                     <div class="text-4xl mb-2">😣</div>
                     <p class="font-semibold text-red-800">Dolor</p>
                 </button>
 
-                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Emergencia médica">
+                <button
+                    class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600 gesture-card"
+                    data-text="Emergencia médica">
                     <div class="text-4xl mb-2">🚑</div>
                     <p class="font-semibold text-red-800">Médico</p>
                 </button>
 
-                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Llamar familia">
+                <button
+                    class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600 gesture-card"
+                    data-text="Llamar familia">
                     <div class="text-4xl mb-2">📞</div>
                     <p class="font-semibold text-red-800">Llamar</p>
                 </button>
 
-                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Me siento mal">
+                <button
+                    class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600 gesture-card"
+                    data-text="Me siento mal">
                     <div class="text-4xl mb-2">🤒</div>
                     <p class="font-semibold text-red-800">Me siento mal</p>
                 </button>
 
-                <button class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600" data-text="Necesito asistencia">
+                <button
+                    class="gesture-btn bg-red-50 hover:bg-red-600 hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-red-200 hover:border-red-600 gesture-card"
+                    data-text="Necesito asistencia">
                     <div class="text-4xl mb-2">⚠️</div>
                     <p class="font-semibold text-red-800">Asistencia</p>
                 </button>
@@ -177,11 +227,13 @@
         </div>
 
         <!-- TTS Status -->
-        <div id="ttsStatus" class="fixed bottom-8 right-8 bg-secondary text-white px-6 py-3 rounded-lg shadow-lg hidden">
+        <div id="ttsStatus"
+            class="fixed bottom-8 right-8 bg-secondary text-white px-6 py-3 rounded-lg shadow-lg hidden">
             <p class="font-semibold">🔊 Reproduciendo...</p>
         </div>
     </main>
 
     <script src="../js/quick-gestures.js"></script>
 </body>
+
 </html>

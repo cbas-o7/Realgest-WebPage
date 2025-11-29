@@ -1,4 +1,4 @@
-const API_URL = `http://localhost:3000/api/stats`;
+const API_URL = process.env.API_URL || `http://localhost:3000/api`;
 
 // Función para obtener el User ID de localStorage
 function getAuthHeader() {
@@ -22,7 +22,7 @@ const getDashboardStats = async () => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/dashboard`, {
+    const response = await fetch(`${API_URL}/stats/dashboard`, {
       method: "GET",
       headers: headers,
     });
@@ -40,7 +40,7 @@ const updateStats = async (words, time) => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/update`, {
+    const response = await fetch(`${API_URL}/stats/update`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({ words, time }),

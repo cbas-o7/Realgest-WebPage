@@ -1,4 +1,4 @@
-import { getStudents, addStudent, updateStudent } from '../api/educator.service.js';
+import { getStudents, addStudent, updateStudent } from '../service/educator.service.js';
 
 // DOM Elements
 const addStudentForm = document.getElementById('addStudentForm');

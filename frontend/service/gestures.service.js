@@ -1,13 +1,14 @@
-const API_URL = `http://localhost:3000/api/gestures`;
-
 import { getAuthHeader } from "./stats.service.js";
+
+const API_URL = process.env.API_URL || `http://localhost:3000/api`;
+
 
 const predictSequence = async (sequence) => {
   const headers = getAuthHeader();
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/predict`, {
+    const response = await fetch(`${API_URL}/gestures/predict`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({ sequence }),
@@ -28,7 +29,7 @@ const collectSequence = async (label, sequence) => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/collect`, {
+    const response = await fetch(`${API_URL}/gestures/collect`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({ label, sequence }),
@@ -48,7 +49,7 @@ const listGesture = async () => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/list`, {
+    const response = await fetch(`${API_URL}/gestures/list`, {
       method: "GET",
       headers: headers,
     });
@@ -67,7 +68,7 @@ const deleteGestureDB = async (label) => {
   if (!headers) return { error: "No autenticado" };
 
   try {
-    const response = await fetch(`${API_URL}/delete`, {
+    const response = await fetch(`${API_URL}/gestures/delete`, {
       method: "DELETE",
       headers: headers,
       body: JSON.stringify({ label }),

@@ -1,4 +1,4 @@
-import { login, register } from "../api/auth.service.js";
+import { login, register } from "../service/auth.service.js";
 
 // Modal elements
 const authModal = document.getElementById("authModal")

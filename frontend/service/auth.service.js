@@ -1,8 +1,8 @@
-const API_URL = `http://localhost:3000/api/`;
+const API_URL = process.env.API_URL || `http://localhost:3000/api`;
 
 const register = async (newUser) => {
   try {
-    const response = await fetch(`${API_URL}register`, {
+    const response = await fetch(`${API_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newUser),
@@ -21,7 +21,7 @@ const login = async (user) => {
   try {
     //console.log("Login attempt:", user);
 
-     const response = await fetch(`${API_URL}login`, {
+     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user)

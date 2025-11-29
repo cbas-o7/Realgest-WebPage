@@ -1,4 +1,4 @@
-import { listGesture, deleteGestureDB } from '../api/gestures.service.js';
+import { listGesture, deleteGestureDB } from '../service/gestures.service.js';
 
 let allGestures = [];
 let sort = false 
@@ -8,13 +8,6 @@ const tableBody = document.getElementById('gesturesTableBody');
 const statusMessage = document.getElementById('statusMessage');
 const searchInput = document.getElementById('searchGesture');
 const sortByName = document.getElementById("sortByName")
-
-const gesturesList = document.getElementById("gesturesList")
-const totalGestures = document.getElementById("totalGestures")
-const searchGestures = document.getElementById("searchGestures")
-const sortByDate = document.getElementById("sortByDate")
-const deleteAllBtn = document.getElementById("deleteAllBtn")
-const logoutBtn = document.getElementById("logoutBtn")
 
 function showStatus(msg, type) {
     statusMessage.textContent = msg;
@@ -87,8 +80,6 @@ sortByName.addEventListener('click', () => {
   }
 });
 
-// Sort Event Listeners
-// Sort Event Listeners handled above
 
 // Delete gesture function (called from the delete buttons in renderTable)
 async function deleteGesture(label) {
@@ -111,19 +102,4 @@ async function deleteGesture(label) {
 }
 
 loadGestures();
-
-
-/* // Sort Gestures
-function sortGestures(gestures, sortBy) {
-  const sorted = [...gestures]
-
-  if (sortBy === "name") {
-    sorted.sort((a, b) => a.name.localeCompare(b.name))
-  } else {
-    sorted.sort((a, b) => b.timestamp - a.timestamp)
-  }
-
-  return sorted
-} */
-
 
