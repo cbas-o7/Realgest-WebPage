@@ -1,6 +1,5 @@
 import { getAuthHeader } from "./stats.service.js";
-
-const API_URL = process.env.API_URL || `http://localhost:3000/api`;
+import { API_URL } from "../js/config.js";
 
 
 const predictSequence = async (sequence) => {

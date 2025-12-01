@@ -2,8 +2,8 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestos Rápidos - RealGest</title>
     <script src="../js/tailwind.js"></script>
     <script>
@@ -11,12 +11,12 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#55c4bd',
-                        secondary: '#18416d'
-                    }
-                }
-            }
-        }
+                        primary: "#55c4bd",
+                        secondary: "#18416d",
+                    },
+                },
+            },
+        };
     </script>
 </head>
 
@@ -26,7 +26,7 @@
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img src="../static/realgest.png" alt="RealGest Logo" class="h-12 w-12">
+                    <img src="../static/realgest.png" alt="RealGest Logo" class="h-12 w-12" />
                     <div>
                         <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
                         <p class="text-sm text-gray-600">Gestos Rápidos</p>
@@ -46,31 +46,27 @@
         <!-- Title Section -->
         <div class="mb-8">
             <h2 class="text-3xl font-bold text-secondary mb-2">Gestos Rápidos</h2>
-            <p class="text-gray-600">Toca un gesto para escuchar su pronunciación</p>
+            <p class="text-gray-600">
+                Toca un gesto para escuchar su pronunciación
+            </p>
         </div>
 
         <!-- Added IoT Device Control Toggle -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-bold text-secondary mb-1">Dispositivo IoT</h3>
-                    <p class="text-sm text-gray-600">Conecta tu Arduino para sincronizar audio</p>
+                    <h3 class="text-xl font-bold text-secondary mb-1">
+                        Dispositivo IoT
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                        Conecta tu Arduino para sincronizar audio
+                    </p>
                 </div>
-
-
 
                 <button id="connectArduinoBtn"
                     class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
                     <span>🔌</span> Conectar Arduino
                 </button>
-                <button id="iotToggle"
-                    class="relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-gray-300">
-                    <span id="iotToggleCircle"
-                        class="inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform translate-x-1"></span>
-                </button>
-
-
-
             </div>
             <div id="iotStatus" class="mt-4 hidden">
                 <div class="flex items-center gap-2 text-sm">
@@ -83,7 +79,9 @@
         <!-- Gestos Personalizados -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-2xl font-bold text-secondary">Gestos Personalizados</h3>
+                <h3 class="text-2xl font-bold text-secondary">
+                    Gestos
+                </h3>
                 <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold">12 gestos</span>
             </div>
 
@@ -111,7 +109,7 @@
 
                 <button
                     class="gesture-btn bg-white hover:bg-primary hover:text-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg hover:scale-105 border-2 border-transparent hover:border-primary gesture-card"
-                    data-text="Sí">
+                    data-text="Si">
                     <div class="text-4xl mb-2">👍</div>
                     <p class="font-semibold text-gray-800">Sí</p>
                 </button>

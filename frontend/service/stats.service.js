@@ -1,4 +1,4 @@
-const API_URL = process.env.API_URL || `http://localhost:3000/api`;
+import { API_URL } from "../js/config.js";
 
 // Función para obtener el User ID de localStorage
 function getAuthHeader() {

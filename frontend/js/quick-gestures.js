@@ -4,6 +4,7 @@ const iotToggle = document.getElementById("iotToggle")
 const iotToggleCircle = document.getElementById("iotToggleCircle")
 const iotStatus = document.getElementById("iotStatus")
 
+
 let iotConnected = false
 
 let port;
@@ -16,6 +17,7 @@ async function connectArduino() {
     
     // Abre el puerto (9600 es la velocidad estándar de Arduino)
     await port.open({ baudRate: 9600 });
+    
 
     // Configura el escritor para enviar texto
     const textEncoder = new TextEncoderStream();
@@ -25,9 +27,10 @@ async function connectArduino() {
     // Actualizar UI
     const btn = document.getElementById('connectArduinoBtn');
     if (btn) {
-        btn.textContent = "✅ Arduino Conectado";
+        btn.textContent = "Arduino Conectado";
         btn.classList.remove("bg-gray-800", "hover:bg-gray-900");
         btn.classList.add("bg-green-600", "hover:bg-green-700");
+        iotStatus.classList.remove("hidden")
         btn.disabled = true;
     }
     
@@ -35,7 +38,7 @@ async function connectArduino() {
 
   } catch (error) {
     console.error("Error al conectar:", error);
-    alert("No se pudo conectar al Arduino. Asegúrate de usar Chrome/Edge y tener el dispositivo conectado.");
+    alert("No se pudo conectar al Arduino. Asegúrate de usar Chrome/Edge, tener el dispositivo conectado y que no este siendo usado el puerto.");
   }
 }
 
@@ -57,88 +60,7 @@ async function sendToArduino(text) {
   }
 }
 
-// 3. Función de voz (TTS) existente
-function speak(text) {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
-    window.speechSynthesis.speak(utterance);
-  }
-}
-
-// 4. Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // Botón de conectar
-    const connectBtn = document.getElementById('connectArduinoBtn');
-    if (connectBtn) {
-        connectBtn.addEventListener('click', connectArduino);
-    }
-
-    // Tarjetas de gestos
-    const cards = document.querySelectorAll('.gesture-card'); // Asegúrate que tus tarjetas tengan esta clase o la que uses
-    // Si usas otro selector en tu HTML, ajústalo aquí. Por ejemplo, si son <div> directos:
-    // const cards = document.querySelectorAll('main > div.grid > div'); 
-
-    cards.forEach(card => {
-        card.addEventListener('click', () => {
-            // Obtenemos el texto del gesto (asumiendo que está en un <p> o <h3> dentro de la card)
-            const text = card.getAttribute("data-text"); 
-            //const text = textElement ? textElement.innerText.trim() : "Gesto";
-
-            // A. Reproducir audio en el navegador
-            speak(text);
-
-            // B. Enviar comando al Arduino (para que actúe como bocina/display)
-            sendToArduino(text);
-        });
-    });
-});
-
-
-
-
-
-
-
-iotToggle.addEventListener("click", () => {
-  iotConnected = !iotConnected
-
-  if (iotConnected) {
-    iotToggle.classList.remove("bg-gray-300")
-    iotToggle.classList.add("bg-primary")
-    iotToggleCircle.classList.remove("translate-x-1")
-    iotToggleCircle.classList.add("translate-x-12")
-    iotStatus.classList.remove("hidden")
-  } else {
-    iotToggle.classList.remove("bg-primary")
-    iotToggle.classList.add("bg-gray-300")
-    iotToggleCircle.classList.remove("translate-x-12")
-    iotToggleCircle.classList.add("translate-x-1")
-    iotStatus.classList.add("hidden")
-  }
-
-  // Save state to localStorage
-  localStorage.setItem("iotConnected", iotConnected)
-})
-
-// Load saved IoT state
-const savedIotState = localStorage.getItem("iotConnected") === "true"
-if (savedIotState) {
-  iotToggle.click()
-}
-
-// Text-to-Speech functionality
-const gestureBtns = document.querySelectorAll(".gesture-btn")
-const ttsStatus = document.getElementById("ttsStatus")
-
-gestureBtns.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const text = btn.getAttribute("data-text")
-    speakText(text)
-  })
-})
-
+// 3. Función de voz (TTS) 
 function speakText(text) {
   // Check if browser supports speech synthesis
   if ("speechSynthesis" in window) {
@@ -169,3 +91,30 @@ function speakText(text) {
   }
 }
 
+
+// 4. Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Botón de conectar
+    const connectBtn = document.getElementById('connectArduinoBtn');
+    if (connectBtn) {
+        connectBtn.addEventListener('click', connectArduino);
+    }
+
+    // Tarjetas de gestos
+    const cards = document.querySelectorAll('.gesture-card'); 
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Obtenemos el texto del gesto (asumiendo que está en un <p> o <h3> dentro de la card)
+            const text = card.getAttribute("data-text"); 
+            //const text = textElement ? textElement.innerText.trim() : "Gesto";
+
+            // A. Reproducir audio en el navegador
+            speakText(text);
+
+            // B. Enviar comando al Arduino (para que actúe como bocina/display)
+            sendToArduino(text);
+        });
+    });
+});
