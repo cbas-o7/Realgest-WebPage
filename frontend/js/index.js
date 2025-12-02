@@ -11,6 +11,8 @@ const loginTab = document.getElementById("loginTab")
 const registerTab = document.getElementById("registerTab")
 
 // Form elements
+const loginEmailInput = document.getElementById("loginEmail");
+const loginPasswordInput = document.getElementById("loginPassword");
 const loginForm = document.getElementById("loginForm")
 const registerForm = document.getElementById("registerForm")
 const errorMessage = document.getElementsByClassName("error-message");
@@ -113,6 +115,22 @@ registerTab.addEventListener("click", () => {
   loginForm.classList.add("hidden")
 })
 
+function prePopulateLogin() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailParam = urlParams.get('email');
+  const passwordParam = urlParams.get('password');
+  
+  if (emailParam && loginEmailInput && loginPasswordInput) {
+    // 1. Rellenar los campos
+    loginEmailInput.value = emailParam;
+    loginPasswordInput.value = passwordParam || ""; // La contraseña puede estar vacía
+    
+    // 2. Abrir el modal automáticamente
+    authModal.classList.remove("hidden");
+    
+  }
+}
+
 // Handle login form submission
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault()
@@ -176,3 +194,5 @@ registerForm.addEventListener("submit", async (e) => {
     
   }
 })
+
+prePopulateLogin();
