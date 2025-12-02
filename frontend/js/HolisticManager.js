@@ -44,7 +44,7 @@ export default class HolisticManager {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
       //this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
-      /* if (results.poseLandmarks) {
+      if (results.poseLandmarks) {
         drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
           color: "#00FF00",
           lineWidth: 2,
@@ -76,7 +76,7 @@ export default class HolisticManager {
           lineWidth: 1,
           radius: 3,
         });
-      } */
+      }
       this.canvasCtx.restore();
     }
 
