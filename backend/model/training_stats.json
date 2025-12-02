@@ -1,1 +1,1 @@
-{"accuracy":0.875,"timestamp":"2025-11-24T02:52:53.633Z","samples":40,"classes":2}
+{"accuracy":0.695652186870575,"loss":0.5104383826255798,"bestEpoch":29,"timestamp":"2025-12-02T02:18:09.265Z","samples":114,"classes":3}

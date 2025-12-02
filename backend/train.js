@@ -169,7 +169,7 @@ async function trainModel() {
   console.log("Entrenando...");
   const history = await model.fit(X, y, {
     epochs: 100,
-    batchSize: 16,
+    batchSize: 32,
     shuffle: true,
     validationSplit: 0.2,
     callbacks: [earlyStopping, saveBestModel],
@@ -198,9 +198,9 @@ async function trainModel() {
 
   fs.writeFileSync(STATS_PATH, JSON.stringify(stats));
 
-  console.log(`✅ Entrenamiento completado.`);
-  console.log(`📊 Mejores estadísticas (Epoch ${stats.bestEpoch}): val_acc = ${bestValAcc.toFixed(4)}`);
-  console.log(`✅ Etiquetas guardadas en ${MODEL_INFO_PATH}`);
+  console.log(` Entrenamiento completado.`);
+  console.log(` Mejores estadísticas (Epoch ${stats.bestEpoch}): val_acc = ${bestValAcc.toFixed(4)}`);
+  console.log(` Etiquetas guardadas en ${MODEL_INFO_PATH}`);
 }
 
 // Ejecutar el entrenamiento

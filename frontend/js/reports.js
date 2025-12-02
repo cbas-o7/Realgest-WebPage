@@ -1,4 +1,4 @@
-import { getStudents, getReportData } from "../api/educator.service.js";
+import { getStudents, getReportData } from "../service/educator.service.js";
 
 // DOM Elements
 const generateBtn = document.getElementById("generateBtn");
