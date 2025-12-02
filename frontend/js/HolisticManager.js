@@ -26,10 +26,14 @@ export default class HolisticManager {
   }
 
   _handleResults(results) {
-    // Ajusta tamaño del canvas al del video
-    if (this.videoElement && this.videoElement.videoWidth && this.videoElement.videoHeight && this.canvasElement) {
-      this.canvasElement.width = this.videoElement.videoWidth;
-      this.canvasElement.height = this.videoElement.videoHeight;
+    // Ajusta tamaño del canvas (solo si cambia para no redibujar el DOM innecesariamente)
+    if (this.videoElement && this.canvasElement) {
+       const vw = this.videoElement.videoWidth;
+       const vh = this.videoElement.videoHeight;
+       if (this.canvasElement.width !== vw || this.canvasElement.height !== vh) {
+           this.canvasElement.width = vw;
+           this.canvasElement.height = vh;
+       }
     }
 
     if (this.canvasCtx) {
@@ -37,13 +41,6 @@ export default class HolisticManager {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
       //this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
-      // Dibujo de landmarks 
-      /* if (results.faceLandmarks) {
-        drawConnectors(this.canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {
-          color: "#C0C0C070",
-          lineWidth: 1,
-        });
-      } */
       if (results.poseLandmarks) {
         drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
           color: "#00FF00",
@@ -99,28 +96,26 @@ export default class HolisticManager {
   }
 
   start() {
-    if (!this.videoElement) throw new Error("videoElement no está definido en HolisticManager");
+    if (!this.videoElement) throw new Error("videoElement no está definido");
+    if (this.isRunning) return;
     
-    if (this.isRunning) return; // Evitar múltiples bucles
     this.isRunning = true;
-    
     this._processFrame();
   }
 
-  // Función recursiva para procesar video frame a frame
   async _processFrame() {
     if (!this.isRunning) return;
 
-    try {
-        // Verificar que el video tenga datos antes de enviar
-        if (this.videoElement.readyState >= 2) { // HAVE_CURRENT_DATA
+    // Solo enviamos si el video tiene datos listos y no está pausado
+    if (this.videoElement.readyState >= 2 && !this.videoElement.paused) {
+        try {
             await this.holistic.send({ image: this.videoElement });
+        } catch (error) {
+            console.error("MediaPipe error (ignorando frame):", error);
         }
-    } catch (error) {
-        console.error("Error procesando frame MediaPipe:", error);
     }
 
-    // Solicitar el siguiente frame al navegador
+    // Bucle sincronizado con el refresco de pantalla
     if (this.isRunning) {
         requestAnimationFrame(this._processFrame.bind(this));
     }
