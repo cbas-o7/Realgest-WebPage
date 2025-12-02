@@ -1,5 +1,6 @@
 import {
-  HolisticLandmarker,
+  PoseLandmarker,
+  HandLandmarker,
   FilesetResolver
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15";
 
@@ -9,122 +10,145 @@ export default class HolisticManager {
     this.canvasElement = canvasElement;
     this.canvasCtx = canvasElement ? canvasElement.getContext("2d") : null;
     this.onResultsCallback = onResults || null;
-    this.latestLandmarks = null;
-
-    this.landmarker = null;
+    
+    this.poseLandmarker = null;
+    this.handLandmarker = null;
+    
     this.isRunning = false;
     this.lastVideoTime = -1;
 
-    this.processInterval = 30;
-    this.lastProcessTime = 0;
-
-    this._initModel();
+    this._initModels();
   }
 
-  async _initModel() {
+  async _initModels() {
     try {
-      const filesetResolver = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15/wasm"
-      );
+        const vision = await FilesetResolver.forVisionTasks(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15/wasm"
+        );
 
-      this.landmarker = await HolisticLandmarker.createFromOptions(filesetResolver, {
-        baseOptions: {
-          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/holistic_landmarker/holistic_landmarker/float16/latest/holistic_landmarker.task`,
-          delegate: "GPU"
-        },
-        runningMode: "VIDEO",
-        minPoseDetectionConfidence: 0.5,
-        minPosePresenceConfidence: 0.5,
-        minPoseTrackingConfidence: 0.5,
-        minHandDetectionConfidence: 0.5,
-        minFaceDetectionConfidence: 0.5,
-      });
+        // 1. Cargar POSE (Versión LITE - Súper rápida)
+        this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+            baseOptions: {
+                modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task`,
+                delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            numPoses: 1,
+            minPoseDetectionConfidence: 0.5,
+            minPosePresenceConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
 
-      console.log("Modelo Holistic (v0.10.15) cargado correctamente desde /latest/.");
+        // 2. Cargar HANDS (Manos)
+        this.handLandmarker = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: {
+                modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task`,
+                delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            numHands: 2, // Detectar ambas manos
+            minHandDetectionConfidence: 0.5,
+            minHandPresenceConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
 
-      if (this.isRunning) {
-        this._loop();
-      }
+        console.log("Modelos Ligeros (Pose Lite + Hands) cargados.");
+        
+        if (this.isRunning) {
+            this._loop();
+        }
 
     } catch (error) {
-      console.error("Error iniciando MediaPipe:", error);
-      alert("Error cargando el modelo de IA. Verifica tu conexión a internet.");
+        console.error("Error iniciando modelos:", error);
+        alert("Error cargando IA.");
     }
   }
 
   start() {
-    if (!this.videoElement) throw new Error("videoElement no está definido");
+    if (!this.videoElement) throw new Error("Falta videoElement");
     if (this.isRunning) return;
-
     this.isRunning = true;
-
-    if (this.landmarker) {
-      this._loop();
-    }
+    if (this.poseLandmarker && this.handLandmarker) this._loop();
   }
 
   async _loop() {
     if (!this.isRunning) return;
 
-    const now = Date.now();
-
-    // Solo procesamos si ha pasado el tiempo mínimo (30ms)
-    if (now - this.lastProcessTime >= this.processInterval) {
-
-      // Y si el frame de video ha cambiado realmente
-      if (this.landmarker && this.videoElement.currentTime !== this.lastVideoTime) {
+    if (this.poseLandmarker && this.handLandmarker && this.videoElement.currentTime !== this.lastVideoTime) {
         if (this.videoElement.readyState >= 2 && !this.videoElement.paused) {
-          this.lastVideoTime = this.videoElement.currentTime;
-          this.lastProcessTime = now; // Actualizamos tiempo
-
-          try {
-            const startTime = performance.now();
-            const results = this.landmarker.detectForVideo(this.videoElement, startTime);
-            this._processResults(results);
-          } catch (e) { }
+            this.lastVideoTime = this.videoElement.currentTime;
+            try {
+                const startTime = performance.now();
+                
+                // --- EJECUCIÓN PARALELA (Más velocidad) ---
+                // Lanzamos ambas detecciones a la vez
+                const posePromise = this.poseLandmarker.detectForVideo(this.videoElement, startTime);
+                const handPromise = this.handLandmarker.detectForVideo(this.videoElement, startTime);
+                
+                const [poseResult, handResult] = await Promise.all([posePromise, handPromise]);
+                
+                this._processResults(poseResult, handResult);
+            } catch (e) {
+                // Ignorar frames perdidos
+            }
         }
-      }
     }
 
     if (this.isRunning) {
-      requestAnimationFrame(this._loop.bind(this));
+        requestAnimationFrame(this._loop.bind(this));
     }
   }
 
-  _processResults(results) {
-    if (this.canvasCtx) {
-      this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+  _processResults(poseResult, handResult) {
+    // 1. Procesar Manos (Identificar Izquierda vs Derecha)
+    let leftHand = [];
+    let rightHand = [];
+
+    if (handResult.landmarks && handResult.handedness) {
+        for (let i = 0; i < handResult.handedness.length; i++) {
+            // MediaPipe a veces invierte 'Left'/'Right' en modo selfie, 
+            // pero mantenemos el estándar de la librería.
+            const label = handResult.handedness[i][0].categoryName; 
+            const landmarks = handResult.landmarks[i];
+
+            if (label === "Right") rightHand = landmarks; 
+            else leftHand = landmarks;
+        }
     }
 
+    // 2. Preparar objeto combinado (Formato Legacy para compatibilidad)
     const legacyResults = {
-      poseLandmarks: results.poseLandmarks ? results.poseLandmarks[0] : [],
-      faceLandmarks: [],
-      leftHandLandmarks: results.leftHandLandmarks ? results.leftHandLandmarks[0] : [],
-      rightHandLandmarks: results.rightHandLandmarks ? results.rightHandLandmarks[0] : [],
+        poseLandmarks: poseResult.landmarks ? poseResult.landmarks[0] : [],
+        faceLandmarks: [], // ¡Cara vacía! Ahorro masivo de CPU
+        leftHandLandmarks: leftHand,
+        rightHandLandmarks: rightHand,
     };
 
-    this.latestLandmarks = {
-      timestamp: Date.now(),
-      pose: legacyResults.poseLandmarks || [],
-      face: [],
-      leftHand: legacyResults.leftHandLandmarks || [],
-      rightHand: legacyResults.rightHandLandmarks || [],
+    // 3. Limpiar canvas
+    if (this.canvasCtx) {
+        this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+        // Aquí podrías volver a activar el dibujo si quieres, 
+        // ahora que tienes CPU de sobra.
+    }
+
+    // Datos para tu lógica de grabación
+    const latestLandmarks = {
+        timestamp: Date.now(),
+        pose: legacyResults.poseLandmarks || [],
+        face: [],
+        leftHand: legacyResults.leftHandLandmarks || [],
+        rightHand: legacyResults.rightHandLandmarks || [],
     };
 
     if (typeof this.onResultsCallback === "function") {
-      this.onResultsCallback(this.latestLandmarks, legacyResults);
+      this.onResultsCallback(latestLandmarks, legacyResults);
     }
   }
 
   stop() {
     this.isRunning = false;
-    this.latestLandmarks = null;
     if (this.canvasCtx) {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
     }
-  }
-
-  getLatestLandmarks() {
-    return this.latestLandmarks;
   }
 }
