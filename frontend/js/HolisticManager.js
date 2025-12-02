@@ -14,9 +14,10 @@ export default class HolisticManager {
     });
 
     this.holistic.setOptions({
-      modelComplexity: 1,
+      modelComplexity: 0,
       smoothLandmarks: true,
-      refineFaceLandmarks: true,
+      enableSegmentation: false,
+      refineFaceLandmarks: false,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
@@ -36,7 +37,7 @@ export default class HolisticManager {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
       //this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
-      // Dibujo de landmarks (misma lógica anterior)
+      // Dibujo de landmarks 
       /* if (results.faceLandmarks) {
         drawConnectors(this.canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {
           color: "#C0C0C070",
@@ -46,11 +47,12 @@ export default class HolisticManager {
       if (results.poseLandmarks) {
         drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
           color: "#00FF00",
-          lineWidth: 4,
+          lineWidth: 2,
         });
         drawLandmarks(this.canvasCtx, results.poseLandmarks, {
           color: "#FF0000",
-          lineWidth: 2,
+          lineWidth: 1,
+          radius: 3,
         });
       }
       if (results.leftHandLandmarks) {
@@ -61,6 +63,7 @@ export default class HolisticManager {
         drawLandmarks(this.canvasCtx, results.leftHandLandmarks, {
           color: "#FFFFFF",
           lineWidth: 1,
+          radius: 3,
         });
       }
       if (results.rightHandLandmarks) {
@@ -71,6 +74,7 @@ export default class HolisticManager {
         drawLandmarks(this.canvasCtx, results.rightHandLandmarks, {
           color: "#FFFFFF",
           lineWidth: 1,
+          radius: 3,
         });
       }
       this.canvasCtx.restore();
