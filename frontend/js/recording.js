@@ -117,6 +117,9 @@ startCameraBtn.addEventListener("click", async () => {
    videoStream = await navigator.mediaDevices.getUserMedia({
       video: { 
         facingMode: "user",
+        width: { ideal: 480, max: 640 }, 
+        height: { ideal: 360, max: 480 },
+        frameRate: { ideal: 30, max: 30 }
       },
       audio: false,
     });

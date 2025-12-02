@@ -86,7 +86,7 @@
         </div>
 
         <div id="progressContainer"
-          class="hidden absolute bottom-4 left-4 right-4 bg-black/50 p-2 rounded-lg backdrop-blur-sm">
+          class="hidden absolute bottom-4 left-4 right-4 bg-black/50 p-2 rounded-lg backdrop-blur-sm opacity-50">
           <div class="flex justify-between text-white text-xs mb-1">
             <span class="font-bold">Capturando gesto...</span>
             <span id="progressCount">0/30</span>
@@ -97,24 +97,24 @@
           </div>
         </div>
 
-        
+      </div>
+
+      <div class="flex gap-4 justify-center">
+        <button id="startCameraBtn"
+          class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2">
+          <span class="text-xl"></span>
+          Iniciar Cámara
+        </button>
+        <button id="stopCameraBtn"
+          class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
+
+          Detener Cámara
+        </button>
       </div>
     </div>
 
     <!-- Camera Controls -->
-    <div class="flex gap-4 justify-center">
-      <button id="startCameraBtn"
-        class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2">
-        <span class="text-xl"></span>
-        Iniciar Cámara
-      </button>
-      <button id="stopCameraBtn"
-        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
 
-        Detener Cámara
-      </button>
-    </div>
-    </div>
 
     <!-- Translation Output -->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
