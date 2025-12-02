@@ -9,7 +9,8 @@ export default class HolisticManager {
     this.camera = null;
 
     this.lastFrameTime = 0;
-    this.processInterval = 100;
+    // Ahora: 30 (Aprox 30 FPS) -> Tarda 1s en llenar el buffer (si el móvil aguanta)
+    this.processInterval = 30;
 
     this.holistic = new Holistic({
       locateFile: (file) =>
@@ -21,8 +22,8 @@ export default class HolisticManager {
       smoothLandmarks: true,
       enableSegmentation: false,
       refineFaceLandmarks: false,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
+      minDetectionConfidence: 0.4,
+      minTrackingConfidence: 0.4
     });
 
     this.holistic.onResults(this._handleResults.bind(this));
@@ -110,7 +111,7 @@ export default class HolisticManager {
     if (!this.isRunning) return;
 
     const now = Date.now();
-    // LIMITADOR DE FPS: Solo procesa si ha pasado el tiempo suficiente (100ms)
+    // Solo procesa si pasaron 30ms (intentamos ir a 30 FPS)
     if (now - this.lastFrameTime >= this.processInterval) {
         this.lastFrameTime = now;
         
@@ -118,12 +119,11 @@ export default class HolisticManager {
             try {
                 await this.holistic.send({ image: this.videoElement });
             } catch (error) {
-                console.error("MediaPipe error:", error);
+                // Silencioso para no saturar consola
             }
         }
     }
 
-    // Sigue el ciclo, pero la lógica pesada solo corre a 10 FPS
     if (this.isRunning) {
         requestAnimationFrame(this._processFrame.bind(this));
     }
