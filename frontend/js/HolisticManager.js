@@ -5,6 +5,7 @@ export default class HolisticManager {
     this.canvasCtx = canvasElement ? canvasElement.getContext("2d") : null;
     this.onResultsCallback = onResults || null;
     this.latestLandmarks = null;
+    this.isRunning = false; // Bandera para controlar el bucle
     this.camera = null;
 
     this.holistic = new Holistic({
@@ -15,7 +16,7 @@ export default class HolisticManager {
     this.holistic.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
-      //refineFaceLandmarks: true,
+      refineFaceLandmarks: true,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
@@ -33,7 +34,7 @@ export default class HolisticManager {
     if (this.canvasCtx) {
       this.canvasCtx.save();
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-      this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
+      //this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
       // Dibujo de landmarks (misma lógica anterior)
       /* if (results.faceLandmarks) {
@@ -93,30 +94,38 @@ export default class HolisticManager {
     this.onResultsCallback = cb;
   }
 
-  async start() {
+  start() {
     if (!this.videoElement) throw new Error("videoElement no está definido en HolisticManager");
-    if (this.camera) return;
+    
+    if (this.isRunning) return; // Evitar múltiples bucles
+    this.isRunning = true;
+    
+    this._processFrame();
+  }
 
-    this.camera = new Camera(this.videoElement, {
-      onFrame: async () => {
-        await this.holistic.send({ image: this.videoElement });
-      },
-      width: 1280,
-      height: 720,
-    });
-    this.camera.start();
+  // Función recursiva para procesar video frame a frame
+  async _processFrame() {
+    if (!this.isRunning) return;
+
+    try {
+        // Verificar que el video tenga datos antes de enviar
+        if (this.videoElement.readyState >= 2) { // HAVE_CURRENT_DATA
+            await this.holistic.send({ image: this.videoElement });
+        }
+    } catch (error) {
+        console.error("Error procesando frame MediaPipe:", error);
+    }
+
+    // Solicitar el siguiente frame al navegador
+    if (this.isRunning) {
+        requestAnimationFrame(this._processFrame.bind(this));
+    }
   }
 
   stop() {
-    if (this.camera) {
-      try {
-        this.camera.stop();
-      } catch (e) {
-        // Camera.stop puede no existir en algunas versiones; las pistas se detienen en el código que controla getUserMedia
-      }
-      this.camera = null;
-    }
+    this.isRunning = false; // Detiene el bucle _processFrame
     this.latestLandmarks = null;
+    
     if (this.canvasCtx && this.canvasElement) {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
     }
