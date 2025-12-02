@@ -90,8 +90,15 @@ function startHolistic() {
 // Start Camera
 startCameraBtn.addEventListener("click", async () => {
   try {
-    videoStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" },
+   videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { 
+        facingMode: "user",
+        // --- OPTIMIZACIÓN: BAJAR RESOLUCIÓN ---
+        width: { ideal: 640 },  // Pedir 640px de ancho
+        height: { ideal: 480 }, // Pedir 480px de alto
+        frameRate: { ideal: 30, max: 40 } // Pedir pocos FPS al hardware
+        // --------------------------------------
+      },
       audio: false,
     });
     videoElement.srcObject = videoStream;
