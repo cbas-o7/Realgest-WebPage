@@ -16,7 +16,7 @@ let sequenceBuffer = [];
 let isHandVisible = false;
 let handTimeout = null;
 const GESTURE_TIMEOUT = 100; // 500ms de espera antes de enviar
-const MIN_SEQUENCE_FRAMES = 5; // Mínimo 30 fotogramas para un gesto
+const MIN_SEQUENCE_FRAMES = 20; // Mínimo 30 fotogramas para un gesto
 
 // DOM Elements
 const videoElement = document.getElementById("videoElement");
