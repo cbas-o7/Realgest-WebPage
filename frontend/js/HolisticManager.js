@@ -1,3 +1,8 @@
+import {
+  HolisticLandmarker,
+  FilesetResolver
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15";
+
 export default class HolisticManager {
   constructor({ videoElement, canvasElement, onResults } = {}) {
     this.videoElement = videoElement;
@@ -5,98 +10,43 @@ export default class HolisticManager {
     this.canvasCtx = canvasElement ? canvasElement.getContext("2d") : null;
     this.onResultsCallback = onResults || null;
     this.latestLandmarks = null;
-    this.isRunning = false; // Bandera para controlar el bucle
-    this.camera = null;
+    
+    this.landmarker = null;
+    this.isRunning = false;
+    this.lastVideoTime = -1;
 
-    this.lastFrameTime = 0;
-    // Ahora: 30 (Aprox 30 FPS) -> Tarda 1s en llenar el buffer (si el móvil aguanta)
-    this.processInterval = 30;
-
-    this.holistic = new Holistic({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
-    });
-
-    this.holistic.setOptions({
-      modelComplexity: 0,
-      smoothLandmarks: true,
-      enableSegmentation: false,
-      refineFaceLandmarks: false,
-      minDetectionConfidence: 0.4,
-      minTrackingConfidence: 0.4
-    });
-
-    this.holistic.onResults(this._handleResults.bind(this));
+    this._initModel();
   }
 
-  _handleResults(results) {
-    // Ajusta tamaño del canvas (solo si cambia para no redibujar el DOM innecesariamente)
-    if (this.videoElement && this.canvasElement) {
-       const vw = this.videoElement.videoWidth;
-       const vh = this.videoElement.videoHeight;
-       if (this.canvasElement.width !== vw || this.canvasElement.height !== vh) {
-           this.canvasElement.width = vw;
-           this.canvasElement.height = vh;
-       }
+  async _initModel() {
+    try {
+        const filesetResolver = await FilesetResolver.forVisionTasks(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15/wasm"
+        );
+
+        this.landmarker = await HolisticLandmarker.createFromOptions(filesetResolver, {
+            baseOptions: {
+                modelAssetPath: `https://storage.googleapis.com/mediapipe-models/holistic_landmarker/holistic_landmarker/float16/latest/holistic_landmarker.task`,
+                delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            minPoseDetectionConfidence: 0.5,
+            minPosePresenceConfidence: 0.5,
+            minPoseTrackingConfidence: 0.5,
+            minHandDetectionConfidence: 0.5, 
+            minFaceDetectionConfidence: 0.5,
+        });
+
+        console.log("Modelo Holistic (v0.10.15) cargado correctamente desde /latest/.");
+        
+        if (this.isRunning) {
+            this._loop();
+        }
+
+    } catch (error) {
+        console.error("Error iniciando MediaPipe:", error);
+        alert("Error cargando el modelo de IA. Verifica tu conexión a internet.");
     }
-
-    if (this.canvasCtx) {
-      this.canvasCtx.save();
-      this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-      //this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
-
-      if (results.poseLandmarks) {
-        drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
-          color: "#00FF00",
-          lineWidth: 2,
-        });
-        drawLandmarks(this.canvasCtx, results.poseLandmarks, {
-          color: "#FF0000",
-          lineWidth: 1,
-          radius: 3,
-        });
-      }
-      if (results.leftHandLandmarks) {
-        drawConnectors(this.canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {
-          color: "#00FFFF",
-          lineWidth: 2,
-        });
-        drawLandmarks(this.canvasCtx, results.leftHandLandmarks, {
-          color: "#FFFFFF",
-          lineWidth: 1,
-          radius: 3,
-        });
-      }
-      if (results.rightHandLandmarks) {
-        drawConnectors(this.canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {
-          color: "#FF00FF",
-          lineWidth: 2,
-        });
-        drawLandmarks(this.canvasCtx, results.rightHandLandmarks, {
-          color: "#FFFFFF",
-          lineWidth: 1,
-          radius: 3,
-        });
-      }
-      this.canvasCtx.restore();
-    }
-
-    // Guardar datos numéricos
-    this.latestLandmarks = {
-      timestamp: Date.now(),
-      pose: results.poseLandmarks || [],
-      //face: results.faceLandmarks || [],
-      leftHand: results.leftHandLandmarks || [],
-      rightHand: results.rightHandLandmarks || [],
-    };
-
-    if (typeof this.onResultsCallback === "function") {
-      this.onResultsCallback(this.latestLandmarks, results);
-    }
-  }
-
-  setOnResults(cb) {
-    this.onResultsCallback = cb;
   }
 
   start() {
@@ -104,36 +54,62 @@ export default class HolisticManager {
     if (this.isRunning) return;
     
     this.isRunning = true;
-    this._processFrame();
+    
+    if (this.landmarker) {
+        this._loop();
+    }
   }
 
-  async _processFrame() {
+  async _loop() {
     if (!this.isRunning) return;
 
-    const now = Date.now();
-    // Solo procesa si pasaron 30ms (intentamos ir a 30 FPS)
-    if (now - this.lastFrameTime >= this.processInterval) {
-        this.lastFrameTime = now;
-        
+    if (this.landmarker && this.videoElement.currentTime !== this.lastVideoTime) {
         if (this.videoElement.readyState >= 2 && !this.videoElement.paused) {
+            this.lastVideoTime = this.videoElement.currentTime;
             try {
-                await this.holistic.send({ image: this.videoElement });
-            } catch (error) {
-                // Silencioso para no saturar consola
+                const startTime = performance.now();
+                const results = this.landmarker.detectForVideo(this.videoElement, startTime);
+                this._processResults(results);
+            } catch (e) {
+                // Ignorar errores de frame
             }
         }
     }
 
     if (this.isRunning) {
-        requestAnimationFrame(this._processFrame.bind(this));
+        requestAnimationFrame(this._loop.bind(this));
+    }
+  }
+
+  _processResults(results) {
+    if (this.canvasCtx) {
+        this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+    }
+
+    const legacyResults = {
+        poseLandmarks: results.poseLandmarks ? results.poseLandmarks[0] : [],
+        faceLandmarks: [], 
+        leftHandLandmarks: results.leftHandLandmarks ? results.leftHandLandmarks[0] : [],
+        rightHandLandmarks: results.rightHandLandmarks ? results.rightHandLandmarks[0] : [],
+    };
+
+    this.latestLandmarks = {
+        timestamp: Date.now(),
+        pose: legacyResults.poseLandmarks || [],
+        face: [],
+        leftHand: legacyResults.leftHandLandmarks || [],
+        rightHand: legacyResults.rightHandLandmarks || [],
+    };
+
+    if (typeof this.onResultsCallback === "function") {
+      this.onResultsCallback(this.latestLandmarks, legacyResults);
     }
   }
 
   stop() {
-    this.isRunning = false; // Detiene el bucle _processFrame
+    this.isRunning = false;
     this.latestLandmarks = null;
-    
-    if (this.canvasCtx && this.canvasElement) {
+    if (this.canvasCtx) {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
     }
   }

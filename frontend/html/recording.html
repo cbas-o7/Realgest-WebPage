@@ -28,9 +28,7 @@
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <img
-            src="../static/realgest.png"
-            alt="RealGest Logo" class="h-12 w-12" />
+          <img src="../static/realgest.png" alt="RealGest Logo" class="h-12 w-12" />
           <div>
             <h1 class="text-2xl font-bold text-secondary">RealGest</h1>
             <p class="text-sm text-gray-600">Iniciar Grabación</p>
@@ -86,21 +84,36 @@
             </p>
           </div>
         </div>
-      </div>
 
-      <!-- Camera Controls -->
-      <div class="flex gap-4 justify-center">
-        <button id="startCameraBtn"
-          class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2">
-          <span class="text-xl"></span>
-          Iniciar Cámara
-        </button>
-        <button id="stopCameraBtn"
-          class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
-          
-          Detener Cámara
-        </button>
+        <div id="progressContainer"
+          class="hidden absolute bottom-4 left-4 right-4 bg-black/50 p-2 rounded-lg backdrop-blur-sm">
+          <div class="flex justify-between text-white text-xs mb-1">
+            <span class="font-bold">Capturando gesto...</span>
+            <span id="progressCount">0/30</span>
+          </div>
+          <div class="w-full bg-gray-600 rounded-full h-2">
+            <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-100" style="width: 0%">
+            </div>
+          </div>
+        </div>
+
+        
       </div>
+    </div>
+
+    <!-- Camera Controls -->
+    <div class="flex gap-4 justify-center">
+      <button id="startCameraBtn"
+        class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2">
+        <span class="text-xl"></span>
+        Iniciar Cámara
+      </button>
+      <button id="stopCameraBtn"
+        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden flex items-center gap-2">
+
+        Detener Cámara
+      </button>
+    </div>
     </div>
 
     <!-- Translation Output -->
@@ -147,11 +160,6 @@
       </div>
     </div>
   </main>
-
-  <!-- Mediapipe Holistic -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
 
   <script type="module" src="../js/recording.js"></script>
 </body>

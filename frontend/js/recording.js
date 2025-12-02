@@ -16,9 +16,13 @@ let sequenceBuffer = [];
 let isHandVisible = false;
 let handTimeout = null;
 const GESTURE_TIMEOUT = 100; // 500ms de espera antes de enviar
-const MIN_SEQUENCE_FRAMES = 20; // Mínimo 30 fotogramas para un gesto
+const MIN_SEQUENCE_FRAMES = 30; // Mínimo 30 fotogramas para un gesto
 
 // DOM Elements
+const progressContainer = document.getElementById('progressContainer');
+const progressBar = document.getElementById('progressBar');
+const progressCount = document.getElementById('progressCount');
+
 const videoElement = document.getElementById("videoElement");
 const startCameraBtn = document.getElementById("startCameraBtn");
 const stopCameraBtn = document.getElementById("stopCameraBtn");
@@ -53,6 +57,22 @@ const holisticManager = new HolisticManager({
       }
       isHandVisible = true;
       sequenceBuffer.push(landmarks); // Añade el fotograma al búfer
+
+      progressContainer.classList.remove('hidden');
+
+      // Calculamos porcentaje (tope en 100%)
+      const percentage = Math.min((sequenceBuffer.length / MIN_SEQUENCE_FRAMES) * 100, 100);
+      progressBar.style.width = `${percentage}%`;
+      progressCount.textContent = `${sequenceBuffer.length}/${MIN_SEQUENCE_FRAMES}`;
+
+      // Cambio de color visual si completamos
+      if (sequenceBuffer.length >= MIN_SEQUENCE_FRAMES) {
+          progressBar.classList.remove('bg-primary');
+          progressBar.classList.add('bg-green-500');
+      } else {
+          progressBar.classList.add('bg-primary');
+          progressBar.classList.remove('bg-green-500');
+      }
     
     } else if (isHandVisible) {
       // Si no hay manos, PERO las había en el fotograma anterior
@@ -61,6 +81,10 @@ const holisticManager = new HolisticManager({
         handTimeout = setTimeout(async () => {
           console.log(`Mano desapareció, enviando ${sequenceBuffer.length} fotogramas...`);
           isHandVisible = false;
+
+          // Ocultar barra al enviar
+          progressContainer.classList.add('hidden');
+          progressBar.style.width = '0%';
           
           if (sequenceBuffer.length > MIN_SEQUENCE_FRAMES) {
             // Envía la secuencia al backend para predecir
@@ -93,11 +117,6 @@ startCameraBtn.addEventListener("click", async () => {
    videoStream = await navigator.mediaDevices.getUserMedia({
       video: { 
         facingMode: "user",
-        // --- OPTIMIZACIÓN: BAJAR RESOLUCIÓN ---
-        width: { ideal: 320 },  // Pedir 640px de ancho
-        height: { ideal: 240 }, // Pedir 480px de alto
-        frameRate: { ideal: 30 } // Pedir pocos FPS al hardware
-        // --------------------------------------
       },
       audio: false,
     });
