@@ -8,7 +8,8 @@ export default class HolisticManager {
     this.isRunning = false; // Bandera para controlar el bucle
     this.camera = null;
 
-    
+    this.lastFrameTime = 0;
+    this.processInterval = 100;
 
     this.holistic = new Holistic({
       locateFile: (file) =>
@@ -43,7 +44,7 @@ export default class HolisticManager {
       this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
       //this.canvasCtx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
-      if (results.poseLandmarks) {
+      /* if (results.poseLandmarks) {
         drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
           color: "#00FF00",
           lineWidth: 2,
@@ -75,7 +76,7 @@ export default class HolisticManager {
           lineWidth: 1,
           radius: 3,
         });
-      }
+      } */
       this.canvasCtx.restore();
     }
 
@@ -108,16 +109,21 @@ export default class HolisticManager {
   async _processFrame() {
     if (!this.isRunning) return;
 
-    // Solo enviamos si el video tiene datos listos y no está pausado
-    if (this.videoElement.readyState >= 2 && !this.videoElement.paused) {
-        try {
-            await this.holistic.send({ image: this.videoElement });
-        } catch (error) {
-            console.error("MediaPipe error (ignorando frame):", error);
+    const now = Date.now();
+    // LIMITADOR DE FPS: Solo procesa si ha pasado el tiempo suficiente (100ms)
+    if (now - this.lastFrameTime >= this.processInterval) {
+        this.lastFrameTime = now;
+        
+        if (this.videoElement.readyState >= 2 && !this.videoElement.paused) {
+            try {
+                await this.holistic.send({ image: this.videoElement });
+            } catch (error) {
+                console.error("MediaPipe error:", error);
+            }
         }
     }
 
-    // Bucle sincronizado con el refresco de pantalla
+    // Sigue el ciclo, pero la lógica pesada solo corre a 10 FPS
     if (this.isRunning) {
         requestAnimationFrame(this._processFrame.bind(this));
     }
