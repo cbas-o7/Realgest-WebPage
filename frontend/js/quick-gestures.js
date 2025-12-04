@@ -8,7 +8,7 @@ import { requireAuth } from "./auth.guard.js";
 const user = requireAuth(['usuario']);
 
 
-let iotConnected = false
+letrequireAuth,  iotConnected = false
 
 let port;
 let writer;
