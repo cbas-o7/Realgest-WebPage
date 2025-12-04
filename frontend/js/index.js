@@ -1,4 +1,5 @@
 import { login, register } from "../service/auth.service.js";
+import { redirectIfLoggedIn } from "./auth.guard.js";
 
 // Modal elements
 const authModal = document.getElementById("authModal")
@@ -19,6 +20,8 @@ const errorMessage = document.getElementsByClassName("error-message");
 
 // contenedor de aviso offline
 let offlineBanner;
+
+redirectIfLoggedIn();
 
 // Función para crear el banner de aviso
 function showOfflineBanner() {

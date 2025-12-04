@@ -1,4 +1,7 @@
 import { listGesture, deleteGestureDB } from '../service/gestures.service.js';
+import { requireAuth } from "./auth.guard.js";
+
+requireAuth(['educador']);
 
 let allGestures = [];
 let sort = false 

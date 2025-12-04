@@ -1,4 +1,7 @@
 import { getStudents, addStudent, updateStudent } from '../service/educator.service.js';
+import { requireAuth } from "./auth.guard.js";
+
+requireAuth(['educador']);
 
 // DOM Elements
 const addStudentForm = document.getElementById('addStudentForm');

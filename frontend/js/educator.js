@@ -1,4 +1,7 @@
 import { getEducatorDashboardStats } from '../service/educator.service.js';
+import { requireAuth } from "./auth.guard.js";
+
+requireAuth(['educador']);
 
 // DOM Elements
 const logoutBtn = document.getElementById('logoutBtn');

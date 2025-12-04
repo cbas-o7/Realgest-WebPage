@@ -1,10 +1,13 @@
 import { getDashboardStats } from "../service/stats.service.js";
+import { requireAuth } from "./auth.guard.js";
 
 const logoutBtn = document.getElementById("logoutBtn")
 const wordsCountEl = document.getElementById("wordsCount");
 const timeUsageEl = document.getElementById("timeUsage");
 const userNameEl = document.getElementById("userName");
 const gesturesEl = document.getElementById("gesturesRegistered");
+
+const user = requireAuth(['usuario']);
 
 logoutBtn.addEventListener("click", () => {
   const confirmLogout = confirm("¿Estás seguro de que deseas cerrar sesión?")

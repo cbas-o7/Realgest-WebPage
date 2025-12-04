@@ -1,4 +1,7 @@
 import { getStudents, getReportData } from "../service/educator.service.js";
+import { requireAuth } from "./auth.guard.js";
+
+requireAuth(['educador']);
 
 // DOM Elements
 const generateBtn = document.getElementById("generateBtn");
