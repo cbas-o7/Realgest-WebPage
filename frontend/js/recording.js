@@ -1,6 +1,9 @@
 import { predictSequence } from "../service/gestures.service.js";
 import { updateStats } from "../service/stats.service.js";
 import HolisticManager from "./HolisticManager.js";
+import { requireAuth } from "./auth.guard.js";
+
+requireAuth(['educador']);
 
 
 let videoStream = null;

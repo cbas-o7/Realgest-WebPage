@@ -3,6 +3,9 @@
 const iotToggle = document.getElementById("iotToggle")
 const iotToggleCircle = document.getElementById("iotToggleCircle")
 const iotStatus = document.getElementById("iotStatus")
+import { requireAuth } from "./auth.guard.js";
+
+const user = requireAuth(['usuario']);
 
 
 let iotConnected = false
