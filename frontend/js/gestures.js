@@ -3,7 +3,7 @@ import { train } from "../service/admin/train-and-reload.service.js";
 import HolisticManager from "./HolisticManager.js";
 import { requireAuth } from "./auth.guard.js";
 
-const user = requireAuth(['usuario']);
+const user = requireAuth(['educador']);
 
 let videoStream = null;
 let latestLandmarks = null;

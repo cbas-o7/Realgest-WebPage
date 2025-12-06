@@ -3,7 +3,7 @@ import { updateStats } from "../service/stats.service.js";
 import HolisticManager from "./HolisticManager.js";
 import { requireAuth } from "./auth.guard.js";
 
-requireAuth(['educador']);
+requireAuth(['usuario']);
 
 
 let videoStream = null;
